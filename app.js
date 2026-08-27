@@ -14,9 +14,6 @@ const translations = {
         explain_btn: "اشرح لي الطريقة",
         demo_title: "أمثلة سريعة",
         solution_method: "طريقة الحل",
-        tab_mental: "الحساب الذهني",
-        tab_visual: "الطريقة البصرية",
-        step_indicator: "الخطوة {current} من {total}",
         practice_mode: "وضع التدريب",
         score: "النقاط:",
         level1: "المستوى 1", level1_desc: "جمع بسيط",
@@ -27,7 +24,8 @@ const translations = {
         challenge: "تحدي", challenge_desc: "مختلط",
         press_start: 'اضغط "ابدأ" للبدء',
         answer_placeholder: "أجب هنا",
-        check: "تحقق", start: "ابدأ",
+        check: "تحقق", start: "ابدأ", next: "التالي",
+        back_to_calc: "رجوع للآلة",
         history_title: "📜 سجل العمليات",
         clear_history: "مسح السجل",
         no_history: "لا توجد عمليات بعد",
@@ -84,9 +82,6 @@ const translations = {
         explain_btn: "Explain the Method",
         demo_title: "Quick Examples",
         solution_method: "Solution Method",
-        tab_mental: "Mental Math",
-        tab_visual: "Visual Method",
-        step_indicator: "Step {current} of {total}",
         practice_mode: "Practice Mode",
         score: "Score:",
         level1: "Level 1", level1_desc: "Simple Addition",
@@ -97,7 +92,8 @@ const translations = {
         challenge: "Challenge", challenge_desc: "Mixed",
         press_start: 'Press "Start" to begin',
         answer_placeholder: "Your answer",
-        check: "Check", start: "Start",
+        check: "Check", start: "Start", next: "Next",
+        back_to_calc: "Back to Calculator",
         history_title: "📜 History",
         clear_history: "Clear History",
         no_history: "No operations yet",
@@ -280,7 +276,7 @@ class MathEngine {
     getDisplayOp(op) { const map = { '*': '×', '/': '÷', '+': '+', '-': '-', '%': '%' }; return map[op] || op; }
     parseBinaryExpression(expr) {
         const clean = expr.replace(/\s+/g, '');
-        const match = clean.match(/^(-?\d+\.?\d*)([\+\-\×\*\÷\/%])(-?\d+\.?\d*)$/);
+        const match = clean.match(/^(-?\d+\.?\d*)([\+\-\×\*\÷\/\%])(-?\d+\.?\d*)$/);
         if (!match) return null;
         return { a: parseFloat(match[1]), op: match[2], b: parseFloat(match[3]) };
     }
@@ -324,8 +320,7 @@ class StrategyEngine {
                         { text: i18n.get('split_b', {b, comp: complement, rem: remainder}), highlight: false },
                         { text: i18n.get('so_result', {rem: remainder, sum}), highlight: true },
                         { text: i18n.get('result_is', {result: sum}), highlight: true, isFinal: true }
-                    ],
-                    visualType: 'complement', visualData: { a, b, complement, remainder, sum }
+                    ]
                 };
             }
         }
@@ -355,7 +350,7 @@ class StrategyEngine {
                 steps.push({ text: i18n.get('add_results', {part1: tensSum, part2: onesSum, result: sum}), highlight: true });
             }
             steps.push({ text: i18n.get('result_is', {result: sum}), highlight: true, isFinal: true });
-            return { score: 0.9, name: i18n.get('decompose_addition'), nameEn: 'Number Decomposition', steps, visualType: 'decompose', visualData: { a, b, aTens, aOnes, bTens, bOnes, sum } };
+            return { score: 0.9, name: i18n.get('decompose_addition'), nameEn: 'Number Decomposition', steps };
         }
         return null;
     }
@@ -374,17 +369,19 @@ class StrategyEngine {
                     { text: i18n.get('subtract_ones'), highlight: false },
                     { text: `${a - bTens} - ${bOnes} = ${diff}`, highlight: true },
                     { text: i18n.get('result_is', {result: diff}), highlight: true, isFinal: true }
-                ],
-                visualType: 'numberLine', visualData: { a, b, bTens, bOnes, diff }
+                ]
             };
         }
-        return { score: 0.5, name: i18n.get('direct_subtraction'), nameEn: 'Direct Subtraction', steps: [{ text: i18n.get('subtract_direct', {a, b, result: diff}), highlight: true, isFinal: true }], visualType: 'numberLine', visualData: { a, b, diff } };
+        return { score: 0.5, name: i18n.get('direct_subtraction'), nameEn: 'Direct Subtraction', steps: [{ text: i18n.get('subtract_direct', {a, b, result: diff}), highlight: true, isFinal: true }] };
     }
     distributiveMultiplication(a, op, b, displayOp) {
         if (op !== '×' && op !== '*') return null;
         const product = a * b;
-        if (a >= 10 || b >= 10) {
-            let big = a >= 10 ? a : b, small = a >= 10 ? b : a;
+        // Decompose the LARGER number (not just the first one)
+        let big = Math.max(a, b);
+        let small = Math.min(a, b);
+
+        if (big >= 10) {
             const bigTens = Math.floor(big / 10) * 10, bigOnes = big % 10;
             const part1 = bigTens * small, part2 = bigOnes * small;
             return {
@@ -397,8 +394,7 @@ class StrategyEngine {
                     { text: `${bigOnes} ${displayOp} ${small} = ${part2}`, highlight: true },
                     { text: i18n.get('add_results', {part1, part2, result: product}), highlight: true },
                     { text: i18n.get('result_is', {result: product}), highlight: true, isFinal: true }
-                ],
-                visualType: 'decompose', visualData: { a, b, bigTens, bigOnes, small, part1, part2, product }
+                ]
             };
         }
         return null;
@@ -406,9 +402,9 @@ class StrategyEngine {
     friendlyNumberMultiplication(a, op, b, displayOp) {
         if (op !== '×' && op !== '*') return null;
         const product = a * b;
-        if (a === 25 && b === 4) return { score: 1.0, name: i18n.get('friendly_numbers'), nameEn: 'Friendly Numbers', steps: [{ text: `25 ${displayOp} 4`, highlight: false }, { text: `25 ${displayOp} 4 = 100`, highlight: true, isFinal: true }], visualType: 'blocks', visualData: { a, b, product } };
-        if (a === 5 && b === 2) return { score: 1.0, name: i18n.get('friendly_numbers'), nameEn: 'Friendly Numbers', steps: [{ text: `5 ${displayOp} 2 = 10`, highlight: true, isFinal: true }], visualType: 'blocks', visualData: { a, b, product } };
-        if (a === 10 || b === 10) return { score: 0.95, name: i18n.get('multiply_by_10'), nameEn: 'Multiply by 10', steps: [{ text: i18n.get('multiply_by_10_adds'), highlight: false }, { text: `${a} ${displayOp} ${b} = ${product}`, highlight: true, isFinal: true }], visualType: 'blocks', visualData: { a, b, product } };
+        if (a === 25 && b === 4) return { score: 1.0, name: i18n.get('friendly_numbers'), nameEn: 'Friendly Numbers', steps: [{ text: `25 ${displayOp} 4`, highlight: false }, { text: `25 ${displayOp} 4 = 100`, highlight: true, isFinal: true }] };
+        if (a === 5 && b === 2) return { score: 1.0, name: i18n.get('friendly_numbers'), nameEn: 'Friendly Numbers', steps: [{ text: `5 ${displayOp} 2 = 10`, highlight: true, isFinal: true }] };
+        if (a === 10 || b === 10) return { score: 0.95, name: i18n.get('multiply_by_10'), nameEn: 'Multiply by 10', steps: [{ text: i18n.get('multiply_by_10_adds'), highlight: false }, { text: `${a} ${displayOp} ${b} = ${product}`, highlight: true, isFinal: true }] };
         return null;
     }
     decompositionDivision(a, op, b, displayOp) {
@@ -430,8 +426,7 @@ class StrategyEngine {
                     { text: `${remainder} ${displayOp} ${b} = ${part2}`, highlight: true },
                     { text: i18n.get('add_results', {part1, part2, result: quotient}), highlight: true },
                     { text: i18n.get('result_is', {result: quotient}), highlight: true, isFinal: true }
-                ],
-                visualType: 'decompose', visualData: { a, b, tens, remainder, part1, part2, quotient }
+                ]
             };
         }
         for (let i = 2; i <= Math.floor(a / 2); i++) {
@@ -449,191 +444,22 @@ class StrategyEngine {
                             { text: `${part2} ${displayOp} ${b} = ${q2}`, highlight: true },
                             { text: i18n.get('add_results', {part1: q1, part2: q2, result: quotient}), highlight: true },
                             { text: i18n.get('result_is', {result: quotient}), highlight: true, isFinal: true }
-                        ],
-                        visualType: 'decompose', visualData: { a, b, part1, part2, q1, q2, quotient }
+                        ]
                     };
                 }
             }
         }
-        return { score: 0.5, name: i18n.get('direct_division'), nameEn: 'Direct Division', steps: [{ text: i18n.get('divide_direct', {a, b, result: quotient}), highlight: true, isFinal: true }], visualType: 'blocks', visualData: { a, b, quotient } };
+        return { score: 0.5, name: i18n.get('direct_division'), nameEn: 'Direct Division', steps: [{ text: i18n.get('divide_direct', {a, b, result: quotient}), highlight: true, isFinal: true }] };
     }
     directCalculation(a, op, b, displayOp) {
         let result;
         try { result = mathEngine.evaluate(`${a} ${op} ${b}`); } catch (e) { return null; }
         const opMap = { '+': 'add_direct', '-': 'subtract_direct', '×': 'multiply_direct', '*': 'multiply_direct', '÷': 'divide_direct', '/': 'divide_direct' };
         const key = opMap[op] || 'add_direct';
-        return { score: 0.3, name: i18n.get('direct_calculation'), nameEn: 'Direct Calculation', steps: [{ text: i18n.get(key, {a, b, result}), highlight: true, isFinal: true }], visualType: 'blocks', visualData: { a, b, result } };
+        return { score: 0.3, name: i18n.get('direct_calculation'), nameEn: 'Direct Calculation', steps: [{ text: i18n.get(key, {a, b, result}), highlight: true, isFinal: true }] };
     }
 }
 const strategyEngine = new StrategyEngine();
-
-// ==================== VISUAL MATH ====================
-class VisualMath {
-    constructor() { this.container = null; }
-    setContainer(element) { this.container = element; }
-    clear() { if (this.container) this.container.innerHTML = ''; }
-    render(type, data, stepIndex = 0) {
-        if (!this.container) return;
-        this.clear();
-        switch (type) {
-            case 'blocks': this.renderBlocks(data, stepIndex); break;
-            case 'complement': this.renderComplement(data, stepIndex); break;
-            case 'decompose': this.renderDecompose(data, stepIndex); break;
-            case 'numberLine': this.renderNumberLine(data, stepIndex); break;
-            default: this.renderBlocks(data, stepIndex);
-        }
-    }
-    renderBlocks(data, stepIndex) {
-        const { a, b, sum, product, quotient } = data;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'visual-blocks';
-        const total = sum || product || quotient || (a + b);
-        const numA = a || 0, numB = b || 0;
-        for (let i = 0; i < numA && i < 50; i++) {
-            const block = document.createElement('div');
-            block.className = 'visual-block group-a';
-            block.textContent = i + 1;
-            block.style.animationDelay = `${i * 0.03}s`;
-            wrapper.appendChild(block);
-        }
-        if (stepIndex >= 1) {
-            const sep = document.createElement('div');
-            sep.style.cssText = 'width:20px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-muted);';
-            sep.textContent = '+';
-            sep.style.animation = 'fadeIn 0.3s ease';
-            wrapper.appendChild(sep);
-        }
-        for (let i = 0; i < numB && i < 50; i++) {
-            const block = document.createElement('div');
-            block.className = 'visual-block group-b';
-            block.textContent = i + 1;
-            block.style.animationDelay = `${(numA + i) * 0.03}s`;
-            wrapper.appendChild(block);
-        }
-        if (stepIndex >= 2) {
-            const sep2 = document.createElement('div');
-            sep2.style.cssText = 'width:20px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-muted);';
-            sep2.textContent = '=';
-            sep2.style.animation = 'fadeIn 0.3s ease';
-            wrapper.appendChild(sep2);
-            const resultBlock = document.createElement('div');
-            resultBlock.className = 'visual-block group-result';
-            resultBlock.textContent = total;
-            resultBlock.style.cssText = 'font-size:1.1rem;width:48px;height:48px;';
-            resultBlock.style.animation = 'popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            wrapper.appendChild(resultBlock);
-        }
-        this.container.appendChild(wrapper);
-    }
-    renderComplement(data, stepIndex) {
-        const { a, b, complement, remainder, sum } = data;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'visual-blocks';
-        wrapper.style.flexDirection = 'column';
-        wrapper.style.gap = '16px';
-        const row1 = document.createElement('div');
-        row1.className = 'visual-blocks';
-        row1.style.marginBottom = '8px';
-        for (let i = 0; i < a; i++) { const block = document.createElement('div'); block.className = 'visual-block group-a'; block.textContent = i + 1; row1.appendChild(block); }
-        const sep = document.createElement('div'); sep.style.fontSize = '1.5rem'; sep.style.color = 'var(--text-muted)'; sep.textContent = '+'; row1.appendChild(sep);
-        for (let i = 0; i < b; i++) { const block = document.createElement('div'); block.className = 'visual-block group-b'; block.textContent = i + 1; row1.appendChild(block); }
-        wrapper.appendChild(row1);
-        if (stepIndex >= 1) {
-            const row2 = document.createElement('div'); row2.className = 'visual-blocks'; row2.style.marginBottom = '8px';
-            for (let i = 0; i < 10; i++) { const block = document.createElement('div'); block.className = 'visual-block'; if (i < a) block.classList.add('group-a'); else { block.classList.add('group-a'); block.style.opacity = '0.7'; } block.textContent = i + 1; row2.appendChild(block); }
-            const sep2 = document.createElement('div'); sep2.style.fontSize = '1.5rem'; sep2.style.color = 'var(--text-muted)'; sep2.textContent = '+'; row2.appendChild(sep2);
-            for (let i = 0; i < remainder; i++) { const block = document.createElement('div'); block.className = 'visual-block group-b'; block.textContent = i + 1; row2.appendChild(block); }
-            wrapper.appendChild(row2);
-        }
-        if (stepIndex >= 2) {
-            const row3 = document.createElement('div'); row3.className = 'visual-blocks';
-            const tenBlock = document.createElement('div'); tenBlock.className = 'visual-block group-result'; tenBlock.textContent = '10'; tenBlock.style.width = '80px'; row3.appendChild(tenBlock);
-            const sep3 = document.createElement('div'); sep3.style.fontSize = '1.5rem'; sep3.style.color = 'var(--text-muted)'; sep3.textContent = '+'; row3.appendChild(sep3);
-            const remBlock = document.createElement('div'); remBlock.className = 'visual-block group-b'; remBlock.textContent = remainder; row3.appendChild(remBlock);
-            const sep4 = document.createElement('div'); sep4.style.fontSize = '1.5rem'; sep4.style.color = 'var(--text-muted)'; sep4.textContent = '='; row3.appendChild(sep4);
-            const resultBlock = document.createElement('div'); resultBlock.className = 'visual-block group-result'; resultBlock.textContent = sum; resultBlock.style.cssText = 'width:48px;height:48px;'; resultBlock.style.animation = 'popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)'; row3.appendChild(resultBlock);
-            wrapper.appendChild(row3);
-        }
-        this.container.appendChild(wrapper);
-    }
-    renderDecompose(data, stepIndex) {
-        const { a, b, aTens, aOnes, bTens, bOnes, bigTens, bigOnes, small, part1, part2, product, sum, quotient } = data;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'visual-blocks';
-        wrapper.style.flexDirection = 'column';
-        wrapper.style.gap = '12px';
-        if (aTens !== undefined && aOnes !== undefined) {
-            const row1 = document.createElement('div'); row1.className = 'visual-blocks';
-            const label1 = document.createElement('div'); label1.style.cssText = 'width:60px;text-align:start;font-weight:700;color:var(--accent);'; label1.textContent = `${a} =`; row1.appendChild(label1);
-            for (let i = 0; i < Math.min(aTens / 10, 10); i++) { const block = document.createElement('div'); block.className = 'visual-block group-a'; block.textContent = '10'; block.style.width = '48px'; row1.appendChild(block); }
-            for (let i = 0; i < Math.min(aOnes, 10); i++) { const block = document.createElement('div'); block.className = 'visual-block group-a'; block.textContent = '1'; block.style.cssText = 'width:28px;height:28px;font-size:0.7rem;'; row1.appendChild(block); }
-            wrapper.appendChild(row1);
-            if (bTens !== undefined && bOnes !== undefined) {
-                const row2 = document.createElement('div'); row2.className = 'visual-blocks';
-                const label2 = document.createElement('div'); label2.style.cssText = 'width:60px;text-align:start;font-weight:700;color:var(--warning);'; label2.textContent = `${b} =`; row2.appendChild(label2);
-                for (let i = 0; i < Math.min(bTens / 10, 10); i++) { const block = document.createElement('div'); block.className = 'visual-block group-b'; block.textContent = '10'; block.style.width = '48px'; row2.appendChild(block); }
-                for (let i = 0; i < Math.min(bOnes, 10); i++) { const block = document.createElement('div'); block.className = 'visual-block group-b'; block.textContent = '1'; block.style.cssText = 'width:28px;height:28px;font-size:0.7rem;'; row2.appendChild(block); }
-                wrapper.appendChild(row2);
-            }
-        }
-        if (bigTens !== undefined && bigOnes !== undefined) {
-            const row = document.createElement('div'); row.className = 'visual-blocks';
-            const label = document.createElement('div'); label.style.fontWeight = '700'; label.style.color = 'var(--accent)'; label.textContent = `(${bigTens} + ${bigOnes}) × ${small}`; row.appendChild(label);
-            wrapper.appendChild(row);
-            if (stepIndex >= 2) {
-                const resultRow = document.createElement('div'); resultRow.className = 'visual-blocks';
-                const p1Block = document.createElement('div'); p1Block.className = 'visual-block group-a'; p1Block.textContent = part1; p1Block.style.width = '56px'; resultRow.appendChild(p1Block);
-                const sep = document.createElement('div'); sep.textContent = '+'; sep.style.fontSize = '1.5rem'; sep.style.color = 'var(--text-muted)'; resultRow.appendChild(sep);
-                const p2Block = document.createElement('div'); p2Block.className = 'visual-block group-b'; p2Block.textContent = part2; p2Block.style.width = '56px'; resultRow.appendChild(p2Block);
-                const sep2 = document.createElement('div'); sep2.textContent = '='; sep2.style.fontSize = '1.5rem'; sep2.style.color = 'var(--text-muted)'; resultRow.appendChild(sep2);
-                const resBlock = document.createElement('div'); resBlock.className = 'visual-block group-result'; resBlock.textContent = product; resBlock.style.width = '64px'; resBlock.style.height = '48px'; resBlock.style.animation = 'popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)'; resultRow.appendChild(resBlock);
-                wrapper.appendChild(resultRow);
-            }
-        }
-        if (data.tens !== undefined && data.remainder !== undefined) {
-            const row = document.createElement('div'); row.className = 'visual-blocks';
-            const label = document.createElement('div'); label.style.fontWeight = '700'; label.style.color = 'var(--accent)'; label.textContent = `${a} = ${data.tens} + ${data.remainder}`; row.appendChild(label);
-            wrapper.appendChild(row);
-            if (stepIndex >= 2) {
-                const resultRow = document.createElement('div'); resultRow.className = 'visual-blocks';
-                const p1Block = document.createElement('div'); p1Block.className = 'visual-block group-a'; p1Block.textContent = `${data.tens}÷${b}=${data.part1 || (data.tens / b)}`; p1Block.style.cssText = 'width:80px;font-size:0.75rem;'; resultRow.appendChild(p1Block);
-                const sep = document.createElement('div'); sep.textContent = '+'; sep.style.fontSize = '1.5rem'; sep.style.color = 'var(--text-muted)'; resultRow.appendChild(sep);
-                const p2Block = document.createElement('div'); p2Block.className = 'visual-block group-b'; p2Block.textContent = `${data.remainder}÷${b}=${data.part2 || (data.remainder / b)}`; p2Block.style.cssText = 'width:80px;font-size:0.75rem;'; resultRow.appendChild(p2Block);
-                const sep2 = document.createElement('div'); sep2.textContent = '='; sep2.style.fontSize = '1.5rem'; sep2.style.color = 'var(--text-muted)'; resultRow.appendChild(sep2);
-                const resBlock = document.createElement('div'); resBlock.className = 'visual-block group-result'; resBlock.textContent = quotient; resBlock.style.cssText = 'width:56px;height:48px;'; resBlock.style.animation = 'popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)'; resultRow.appendChild(resBlock);
-                wrapper.appendChild(resultRow);
-            }
-        }
-        this.container.appendChild(wrapper);
-    }
-    renderNumberLine(data, stepIndex) {
-        const { a, b, diff, bTens, bOnes } = data;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'visual-number-line';
-        const start = Math.max(0, a - 15);
-        const end = a + 5;
-        for (let i = start; i <= end; i++) {
-            const item = document.createElement('div');
-            item.className = 'number-line-item';
-            item.textContent = i;
-            if (i === a) item.classList.add('active');
-            if (bTens !== undefined && i === a - bTens) item.classList.add('highlight');
-            if (bOnes !== undefined && i === diff) item.classList.add('active');
-            wrapper.appendChild(item);
-        }
-        this.container.appendChild(wrapper);
-        if (stepIndex >= 1 && bTens !== undefined) {
-            const annotation = document.createElement('div');
-            annotation.style.cssText = 'text-align:center;margin-top:12px;font-size:0.85rem;color:var(--text-secondary);';
-            annotation.innerHTML = i18n.currentLang === 'ar' 
-                ? `← نطرح ${bTens} ← ثم نطرح ${bOnes}`
-                : `← subtract ${bTens} ← then subtract ${bOnes}`;
-            annotation.style.animation = 'fadeIn 0.5s ease';
-            this.container.appendChild(annotation);
-        }
-    }
-}
-const visualMath = new VisualMath();
 
 // ==================== STORAGE ====================
 class StorageManager {
@@ -689,37 +515,31 @@ let deferredPrompt = null;
 let isIOS = false;
 let isStandalone = false;
 
-// Detect iOS
 function detectIOS() {
     const userAgent = window.navigator.userAgent.toLowerCase();
     return /iphone|ipad|ipod/.test(userAgent);
 }
 
-// Detect if running as installed PWA
 function detectStandalone() {
     return window.matchMedia('(display-mode: standalone)').matches ||
            window.navigator.standalone === true;
 }
 
-// Check install eligibility
 function checkInstallEligibility() {
     isIOS = detectIOS();
     isStandalone = detectStandalone();
 
-    // Hide install prompt if already installed
     if (isStandalone) {
         const installPrompt = document.getElementById('install-prompt');
         if (installPrompt) installPrompt.style.display = 'none';
         return;
     }
 
-    // For iOS, show custom instructions after a delay
     if (isIOS && !localStorage.getItem('mindcalc_install_dismissed')) {
         setTimeout(() => {
             const installPrompt = document.getElementById('install-prompt');
             if (installPrompt) {
                 installPrompt.classList.add('show');
-                // Change the install button to show iOS instructions
                 const installYes = document.getElementById('install-yes');
                 if (installYes) {
                     installYes.textContent = i18n.currentLang === 'ar' ? 'تعليمات التثبيت' : 'Install Instructions';
@@ -729,12 +549,10 @@ function checkInstallEligibility() {
     }
 }
 
-// Handle beforeinstallprompt (Chrome, Edge, Samsung Internet)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Only show if not dismissed before
     if (!localStorage.getItem('mindcalc_install_dismissed') && !isStandalone) {
         const installPrompt = document.getElementById('install-prompt');
         if (installPrompt) {
@@ -743,18 +561,14 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-// Handle app installed
 window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     const installPrompt = document.getElementById('install-prompt');
     if (installPrompt) installPrompt.classList.remove('show');
     localStorage.setItem('mindcalc_installed', 'true');
-
-    // Show success message
     showInstallSuccess();
 });
 
-// Show install success toast
 function showInstallSuccess() {
     const toast = document.createElement('div');
     toast.className = 'install-toast';
@@ -773,7 +587,6 @@ function showInstallSuccess() {
     }, 3000);
 }
 
-// Show iOS install instructions
 function showIOSInstallInstructions() {
     const modal = document.getElementById('ios-install-modal');
     if (modal) {
@@ -781,7 +594,6 @@ function showIOSInstallInstructions() {
     }
 }
 
-// Hide iOS install instructions
 function hideIOSInstallInstructions() {
     const modal = document.getElementById('ios-install-modal');
     if (modal) {
@@ -795,14 +607,12 @@ class MindCalcApp {
         this.currentExpr = '';
         this.currentResult = null;
         this.currentStrategy = null;
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.playInterval = null;
-        this.playSpeed = 1;
+        this.hasCalculated = false;
         this.isPracticeMode = false;
         this.practiceLevel = 1;
         this.practiceScore = 0;
         this.currentQuestion = null;
+        this.practiceAnswered = false;
         this.init();
     }
     init() {
@@ -810,7 +620,6 @@ class MindCalcApp {
         this.bindEvents();
         this.loadSettings();
         this.renderHistory();
-        visualMath.setContainer(this.visualArea);
         checkInstallEligibility();
     }
     cacheElements() {
@@ -819,25 +628,24 @@ class MindCalcApp {
         this.explainBtn = document.getElementById('explain-btn');
         this.explanationSection = document.getElementById('explanation-section');
         this.strategyBadge = document.getElementById('strategy-badge');
-        this.visualArea = document.getElementById('visual-area');
         this.stepsArea = document.getElementById('steps-area');
-        this.stepIndicator = document.getElementById('step-indicator');
-        this.progressFill = document.getElementById('progress-fill');
-        this.btnPlay = document.getElementById('btn-play');
-        this.btnPrev = document.getElementById('btn-prev');
-        this.btnNext = document.getElementById('btn-next');
-        this.btnRestart = document.getElementById('btn-restart');
-        this.speedSelect = document.getElementById('speed-select');
         this.historyList = document.getElementById('history-list');
         this.clearHistoryBtn = document.getElementById('clear-history');
-        this.practiceSection = document.getElementById('practice-section');
+        this.historyModal = document.getElementById('history-modal');
+        this.historyToggle = document.getElementById('history-toggle');
+        this.historyModalClose = document.getElementById('history-modal-close');
+        this.mainView = document.getElementById('main-view');
+        this.practiceView = document.getElementById('practice-view');
         this.practiceToggle = document.getElementById('practice-toggle');
+        this.backToCalc = document.getElementById('back-to-calc');
         this.practiceScoreEl = document.getElementById('practice-score');
         this.questionText = document.getElementById('question-text');
         this.practiceAnswer = document.getElementById('practice-answer');
         this.practiceSubmit = document.getElementById('practice-submit');
+        this.practiceNext = document.getElementById('practice-next');
         this.practiceStart = document.getElementById('practice-start');
         this.practiceFeedback = document.getElementById('practice-feedback');
+        this.practiceExplanationArea = document.getElementById('practice-explanation-area');
         this.themeToggle = document.getElementById('theme-toggle');
         this.langToggle = document.getElementById('lang-toggle');
         this.settingsBtn = document.getElementById('settings-btn');
@@ -858,22 +666,24 @@ class MindCalcApp {
         document.querySelectorAll('.demo-chip').forEach(chip => {
             chip.addEventListener('click', (e) => this.loadDemo(e.target.dataset.expr));
         });
-        this.btnPlay.addEventListener('click', () => this.togglePlay());
-        this.btnPrev.addEventListener('click', () => this.prevStep());
-        this.btnNext.addEventListener('click', () => this.nextStep());
-        this.btnRestart.addEventListener('click', () => this.restartSteps());
-        this.speedSelect.addEventListener('change', (e) => {
-            this.playSpeed = parseFloat(e.target.value);
-            if (this.isPlaying) { this.stopPlay(); this.startPlay(); }
-        });
-        document.querySelectorAll('.tab-btn').forEach(tab => {
-            tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
-        });
+        this.historyToggle.addEventListener('click', () => this.openHistoryModal());
+        this.historyModalClose.addEventListener('click', () => this.closeHistoryModal());
+        this.historyModal.addEventListener('click', (e) => { if (e.target === this.historyModal) this.closeHistoryModal(); });
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
         this.practiceToggle.addEventListener('click', () => this.togglePracticeMode());
+        this.backToCalc.addEventListener('click', () => this.togglePracticeMode());
         this.practiceStart.addEventListener('click', () => this.startPractice());
         this.practiceSubmit.addEventListener('click', () => this.checkPracticeAnswer());
-        this.practiceAnswer.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.checkPracticeAnswer(); });
+        this.practiceNext.addEventListener('click', () => this.nextPracticeQuestion());
+        this.practiceAnswer.addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') {
+                if (this.practiceAnswered) {
+                    this.nextPracticeQuestion();
+                } else {
+                    this.checkPracticeAnswer();
+                }
+            }
+        });
         document.querySelectorAll('.level-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.selectLevel(e.target.dataset.level));
         });
@@ -884,14 +694,11 @@ class MindCalcApp {
         this.themeToggleModal.addEventListener('click', () => this.toggleTheme());
         this.defaultSpeed.addEventListener('change', (e) => {
             storage.updateSetting('defaultSpeed', parseFloat(e.target.value));
-            this.playSpeed = parseFloat(e.target.value);
-            this.speedSelect.value = e.target.value;
         });
         this.settingsModal.addEventListener('click', (e) => { if (e.target === this.settingsModal) this.closeSettings(); });
         if (this.installYes) {
             this.installYes.addEventListener('click', () => {
                 if (isIOS) {
-                    // Show iOS install instructions
                     showIOSInstallInstructions();
                     if (this.installPrompt) this.installPrompt.classList.remove('show');
                 } else if (deferredPrompt) {
@@ -913,8 +720,6 @@ class MindCalcApp {
                 if (this.installPrompt) this.installPrompt.classList.remove('show');
             });
         }
-
-        // iOS install modal close
         const iosClose = document.getElementById('ios-install-close');
         if (iosClose) {
             iosClose.addEventListener('click', hideIOSInstallInstructions);
@@ -932,21 +737,38 @@ class MindCalcApp {
             this.currentStrategy = strategyEngine.analyze(this.currentExpr);
             if (this.currentStrategy) {
                 this.strategyBadge.textContent = this.currentStrategy.name;
-                this.renderCurrentStep();
+                this.renderExplanation();
             }
         }
         this.renderHistory();
-        this.updatePlayerUI();
     }
     handleCalcButton(e) {
         const btn = e.currentTarget;
         const number = btn.dataset.number;
         const action = btn.dataset.action;
+
+        // If we already calculated and user presses a number, start fresh
+        if (this.hasCalculated && number !== undefined) {
+            this.currentExpr = '';
+            this.currentResult = null;
+            this.hasCalculated = false;
+            this.hideExplanation();
+        }
+
         if (number !== undefined) this.appendNumber(number);
         else if (action) this.handleAction(action);
     }
     handleKeyboard(e) {
         const key = e.key;
+
+        // If we already calculated and user presses a number, start fresh
+        if (this.hasCalculated && (key >= '0' && key <= '9')) {
+            this.currentExpr = '';
+            this.currentResult = null;
+            this.hasCalculated = false;
+            this.hideExplanation();
+        }
+
         if (key >= '0' && key <= '9') this.appendNumber(key);
         else if (key === '.') this.handleAction('decimal');
         else if (key === '+' || key === '-') this.appendOperator(key);
@@ -975,7 +797,12 @@ class MindCalcApp {
     }
     handleAction(action) {
         switch (action) {
-            case 'ac': this.currentExpr = ''; this.currentResult = null; this.hideExplanation(); break;
+            case 'ac': 
+                this.currentExpr = ''; 
+                this.currentResult = null; 
+                this.hasCalculated = false;
+                this.hideExplanation(); 
+                break;
             case 'del':
                 if (this.currentExpr.length > 0) {
                     this.currentExpr = this.currentExpr.trimEnd();
@@ -1004,11 +831,11 @@ class MindCalcApp {
             let expr = this.currentExpr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
             const result = mathEngine.evaluate(expr);
             this.currentResult = result;
+            this.hasCalculated = true;
             const formattedResult = mathEngine.formatNumber(result);
             this.resultEl.textContent = formattedResult;
             this.explainBtn.disabled = false;
             storage.addHistory(this.currentExpr, formattedResult);
-            this.renderHistory();
         } catch (err) {
             const errorMap = { 'division_by_zero': 'error_div_zero', 'empty_expression': 'error_empty', 'invalid_input': 'error_invalid', 'mismatched_parens': 'error_parens', 'invalid_expression': 'error_expr' };
             const key = errorMap[err.message] || 'error_calc';
@@ -1029,23 +856,12 @@ class MindCalcApp {
         this.explanationSection.style.display = 'block';
         this.explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         this.strategyBadge.textContent = this.currentStrategy.name;
-        this.currentStep = 0;
-        this.stopPlay();
-        this.updatePlayerUI();
-        this.renderCurrentStep();
+        this.renderExplanation();
     }
-    hideExplanation() {
-        this.explanationSection.style.display = 'none';
-        this.stopPlay();
-        this.currentStrategy = null;
-        this.currentStep = 0;
-    }
-    renderCurrentStep() {
+    renderExplanation() {
         if (!this.currentStrategy) return;
-        visualMath.render(this.currentStrategy.visualType, this.currentStrategy.visualData, this.currentStep);
         this.stepsArea.innerHTML = '';
-        for (let i = 0; i <= this.currentStep; i++) {
-            const s = this.currentStrategy.steps[i];
+        this.currentStrategy.steps.forEach((s, i) => {
             const stepEl = document.createElement('div');
             stepEl.className = 'step-item';
             if (s.highlight) stepEl.classList.add('highlight');
@@ -1058,72 +874,27 @@ class MindCalcApp {
             textSpan.textContent = s.text;
             stepEl.appendChild(textSpan);
             this.stepsArea.appendChild(stepEl);
-        }
-        this.stepsArea.scrollTop = this.stepsArea.scrollHeight;
+        });
     }
-    updatePlayerUI() {
-        if (!this.currentStrategy) return;
-        const steps = this.currentStrategy.steps;
-        const total = steps.length;
-        this.stepIndicator.textContent = i18n.get('step_indicator', {current: this.currentStep + 1, total});
-        const progress = ((this.currentStep + 1) / total) * 100;
-        this.progressFill.style.width = `${progress}%`;
-        this.btnPrev.disabled = this.currentStep === 0;
-        this.btnNext.disabled = this.currentStep >= total - 1;
-        this.btnPlay.innerHTML = this.isPlaying ? '⏸' : '▶';
-    }
-    nextStep() {
-        if (!this.currentStrategy) return;
-        if (this.currentStep < this.currentStrategy.steps.length - 1) {
-            this.currentStep++;
-            this.renderCurrentStep();
-            this.updatePlayerUI();
-        } else {
-            this.stopPlay();
-        }
-    }
-    prevStep() {
-        if (this.currentStep > 0) {
-            this.currentStep--;
-            this.renderCurrentStep();
-            this.updatePlayerUI();
-        }
-    }
-    restartSteps() {
-        this.currentStep = 0;
-        this.stopPlay();
-        this.renderCurrentStep();
-        this.updatePlayerUI();
-    }
-    togglePlay() {
-        if (this.isPlaying) this.stopPlay();
-        else this.startPlay();
-    }
-    startPlay() {
-        if (!this.currentStrategy) return;
-        this.isPlaying = true;
-        this.updatePlayerUI();
-        const delay = 2000 / this.playSpeed;
-        this.playInterval = setInterval(() => {
-            if (this.currentStep < this.currentStrategy.steps.length - 1) this.nextStep();
-            else this.stopPlay();
-        }, delay);
-    }
-    stopPlay() {
-        this.isPlaying = false;
-        if (this.playInterval) { clearInterval(this.playInterval); this.playInterval = null; }
-        this.updatePlayerUI();
-    }
-    switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
-        this.renderCurrentStep();
+    hideExplanation() {
+        this.explanationSection.style.display = 'none';
+        this.currentStrategy = null;
     }
     loadDemo(expr) {
         this.currentExpr = expr;
+        this.hasCalculated = false;
         this.updateDisplay();
         this.calculate();
         setTimeout(() => { this.showExplanation(); }, 300);
+    }
+
+    // ===== HISTORY MODAL =====
+    openHistoryModal() {
+        this.renderHistory();
+        this.historyModal.classList.add('active');
+    }
+    closeHistoryModal() {
+        this.historyModal.classList.remove('active');
     }
     renderHistory() {
         const history = storage.getHistory();
@@ -1140,9 +911,11 @@ class MindCalcApp {
                 if (e.target.classList.contains('history-delete')) return;
                 this.currentExpr = item.expr;
                 this.currentResult = parseFloat(item.result);
+                this.hasCalculated = true;
                 this.updateDisplay();
                 this.resultEl.textContent = item.result;
                 this.explainBtn.disabled = false;
+                this.closeHistoryModal();
                 this.showExplanation();
             });
             const delBtn = el.querySelector('.history-delete');
@@ -1156,16 +929,22 @@ class MindCalcApp {
             this.renderHistory();
         }
     }
+
+    // ===== PRACTICE MODE (Separate Page) =====
     togglePracticeMode() {
         this.isPracticeMode = !this.isPracticeMode;
-        this.practiceToggle.classList.toggle('active', this.isPracticeMode);
         if (this.isPracticeMode) {
-            this.practiceSection.style.display = 'block';
-            this.practiceSection.scrollIntoView({ behavior: 'smooth' });
+            this.mainView.style.display = 'none';
+            this.practiceView.style.display = 'block';
+            this.backToCalc.style.display = 'flex';
+            this.practiceToggle.classList.add('active');
             this.practiceScore = 0;
             this.practiceScoreEl.textContent = '0';
         } else {
-            this.practiceSection.style.display = 'none';
+            this.mainView.style.display = 'block';
+            this.practiceView.style.display = 'none';
+            this.backToCalc.style.display = 'none';
+            this.practiceToggle.classList.remove('active');
         }
     }
     selectLevel(level) {
@@ -1176,12 +955,16 @@ class MindCalcApp {
         this.practiceScore = 0;
         this.practiceScoreEl.textContent = '0';
         this.currentQuestion = null;
+        this.practiceAnswered = false;
         this.questionText.textContent = i18n.get('press_start');
         this.practiceAnswer.value = '';
         this.practiceAnswer.disabled = true;
         this.practiceSubmit.disabled = true;
+        this.practiceNext.disabled = true;
+        this.practiceStart.style.display = 'inline-block';
         this.practiceFeedback.textContent = '';
         this.practiceFeedback.className = 'practice-feedback';
+        this.practiceExplanationArea.innerHTML = '';
     }
     generateQuestion() {
         const level = this.practiceLevel;
@@ -1212,40 +995,57 @@ class MindCalcApp {
     }
     startPractice() {
         this.currentQuestion = this.generateQuestion();
+        this.practiceAnswered = false;
         this.questionText.textContent = `${this.currentQuestion.expr} = ?`;
         this.practiceAnswer.value = '';
         this.practiceAnswer.disabled = false;
         this.practiceAnswer.focus();
         this.practiceSubmit.disabled = false;
+        this.practiceNext.disabled = true;
         this.practiceStart.style.display = 'none';
         this.practiceFeedback.textContent = '';
         this.practiceFeedback.className = 'practice-feedback';
-        const oldExp = this.practiceSection.querySelector('.practice-explanation');
-        if (oldExp) oldExp.remove();
+        this.practiceExplanationArea.innerHTML = '';
     }
     checkPracticeAnswer() {
-        if (!this.currentQuestion) return;
+        if (!this.currentQuestion || this.practiceAnswered) return;
         const userAnswer = parseFloat(this.practiceAnswer.value);
         const correct = userAnswer === this.currentQuestion.answer;
+        this.practiceAnswered = true;
+
         if (correct) {
             this.practiceScore += 10;
             this.practiceScoreEl.textContent = this.practiceScore;
             this.practiceFeedback.textContent = i18n.get('correct');
             this.practiceFeedback.className = 'practice-feedback correct';
-            this.showPracticeExplanation();
-            setTimeout(() => { this.startPractice(); }, 3000);
         } else {
             this.practiceFeedback.textContent = i18n.get('wrong', {answer: this.currentQuestion.answer});
             this.practiceFeedback.className = 'practice-feedback wrong';
-            this.showPracticeExplanation();
-            setTimeout(() => { this.startPractice(); }, 4000);
         }
+
+        this.showPracticeExplanation();
+        this.practiceSubmit.disabled = true;
+        this.practiceNext.disabled = false;
+        this.practiceNext.focus();
+    }
+    nextPracticeQuestion() {
+        this.practiceAnswered = false;
+        this.currentQuestion = this.generateQuestion();
+        this.questionText.textContent = `${this.currentQuestion.expr} = ?`;
+        this.practiceAnswer.value = '';
+        this.practiceAnswer.disabled = false;
+        this.practiceAnswer.focus();
+        this.practiceSubmit.disabled = false;
+        this.practiceNext.disabled = true;
+        this.practiceFeedback.textContent = '';
+        this.practiceFeedback.className = 'practice-feedback';
+        this.practiceExplanationArea.innerHTML = '';
     }
     showPracticeExplanation() {
         const strategy = strategyEngine.analyze(this.currentQuestion.expr);
         if (!strategy) return;
-        const oldExp = this.practiceSection.querySelector('.practice-explanation');
-        if (oldExp) oldExp.remove();
+
+        this.practiceExplanationArea.innerHTML = '';
         const expDiv = document.createElement('div');
         expDiv.className = 'practice-explanation';
         const title = document.createElement('h4');
@@ -1264,7 +1064,7 @@ class MindCalcApp {
             stepEl.appendChild(textSpan);
             expDiv.appendChild(stepEl);
         });
-        this.practiceSection.querySelector('.question-area').appendChild(expDiv);
+        this.practiceExplanationArea.appendChild(expDiv);
     }
     loadSettings() {
         const settings = storage.getSettings();
@@ -1272,9 +1072,7 @@ class MindCalcApp {
             document.documentElement.setAttribute('data-theme', 'dark');
             this.updateThemeIcon();
         }
-        this.playSpeed = settings.defaultSpeed || 1;
-        this.speedSelect.value = this.playSpeed;
-        this.defaultSpeed.value = this.playSpeed;
+        this.defaultSpeed.value = settings.defaultSpeed || 1;
     }
     toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
