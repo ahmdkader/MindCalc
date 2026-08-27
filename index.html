@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4e73df">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MindCalc">
+    <meta name="description" content="Interactive Mental Math Calculator - Calculate and Understand">
+    <meta name="keywords" content="calculator, mental math, education, math, learn">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>MindCalc</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="install-prompt" id="install-prompt">
+            <span class="install-prompt-text" data-i18n="install_text">Install MindCalc?</span>
+            <div class="install-prompt-btns">
+                <button class="install-btn install-btn-primary" id="install-yes" data-i18n="install_yes">Install</button>
+                <button class="install-btn install-btn-secondary" id="install-no" data-i18n="install_no">Later</button>
+            </div>
+        </div>
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🧠</span>
+                    <div class="logo-text">
+                        <h1>MindCalc</h1>
+                        <span class="subtitle" data-i18n="subtitle">احسبها... وافهمها</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="lang-toggle" class="icon-btn lang-btn" aria-label="Change language">
+                        <span id="lang-icon">EN</span>
+                    </button>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                        <span>⚙️</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <main class="main-content">
+            <section class="calculator-section">
+                <div class="calculator-card">
+                    <div class="display">
+                        <div class="expression" id="expression"></div>
+                        <div class="result" id="result">0</div>
+                    </div>
+                    <div class="calc-buttons">
+                        <button class="btn btn-special" data-action="ac" data-i18n="btn_ac">AC</button>
+                        <button class="btn btn-special" data-action="del" data-i18n="btn_del">DEL</button>
+                        <button class="btn btn-special" data-action="percent" data-i18n="btn_percent">%</button>
+                        <button class="btn btn-operator" data-action="divide">÷</button>
+                        <button class="btn" data-number="7">7</button>
+                        <button class="btn" data-number="8">8</button>
+                        <button class="btn" data-number="9">9</button>
+                        <button class="btn btn-operator" data-action="multiply">×</button>
+                        <button class="btn" data-number="4">4</button>
+                        <button class="btn" data-number="5">5</button>
+                        <button class="btn" data-number="6">6</button>
+                        <button class="btn btn-operator" data-action="subtract">−</button>
+                        <button class="btn" data-number="1">1</button>
+                        <button class="btn" data-number="2">2</button>
+                        <button class="btn" data-number="3">3</button>
+                        <button class="btn btn-operator" data-action="add">+</button>
+                        <button class="btn" data-number="0">0</button>
+                        <button class="btn" data-action="decimal">.</button>
+                        <button class="btn" data-action="negate">±</button>
+                        <button class="btn btn-equals" data-action="equals">=</button>
+                    </div>
+                    <button id="explain-btn" class="explain-btn" disabled>
+                        <span>🧠</span> <span data-i18n="explain_btn">اشرح لي الطريقة</span>
+                    </button>
+                </div>
+            </section>
+            <section class="demo-section">
+                <h3 data-i18n="demo_title">أمثلة سريعة</h3>
+                <div class="demo-chips">
+                    <button class="demo-chip" data-expr="8 + 6">8 + 6</button>
+                    <button class="demo-chip" data-expr="48 + 27">48 + 27</button>
+                    <button class="demo-chip" data-expr="52 - 18">52 - 18</button>
+                    <button class="demo-chip" data-expr="12 × 6">12 × 6</button>
+                    <button class="demo-chip" data-expr="25 × 4">25 × 4</button>
+                    <button class="demo-chip" data-expr="91 ÷ 7">91 ÷ 7</button>
+                </div>
+            </section>
+            <section class="explanation-section" id="explanation-section" style="display: none;">
+                <div class="explanation-card">
+                    <div class="explanation-header">
+                        <h3>🧠 <span data-i18n="solution_method">طريقة الحل</span></h3>
+                        <div class="tabs">
+                            <button class="tab-btn active" data-tab="mental" data-i18n="tab_mental">الحساب الذهني</button>
+                            <button class="tab-btn" data-tab="visual" data-i18n="tab_visual">الطريقة البصرية</button>
+                        </div>
+                    </div>
+                    <div class="strategy-badge" id="strategy-badge"></div>
+                    <div class="visual-area" id="visual-area"></div>
+                    <div class="steps-area" id="steps-area"></div>
+                    <div class="player-controls">
+                        <button class="player-btn" id="btn-restart">🔄</button>
+                        <button class="player-btn" id="btn-prev">⏮</button>
+                        <button class="player-btn player-main" id="btn-play">▶</button>
+                        <button class="player-btn" id="btn-next">⏭</button>
+                        <div class="speed-control">
+                            <select id="speed-select">
+                                <option value="0.5">0.5x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-info"><span id="step-indicator">الخطوة 0 من 0</span></div>
+                        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            </section>
+            <section class="practice-section" id="practice-section" style="display: none;">
+                <div class="practice-card">
+                    <div class="practice-header">
+                        <h3>🎯 <span data-i18n="practice_mode">وضع التدريب</span></h3>
+                        <div class="score-display"><span data-i18n="score">النقاط:</span><span id="practice-score">0</span></div>
+                    </div>
+                    <div class="level-selector">
+                        <button class="level-btn active" data-level="1"><span data-i18n="level1">المستوى 1</span><br><small data-i18n="level1_desc">جمع بسيط</small></button>
+                        <button class="level-btn" data-level="2"><span data-i18n="level2">المستوى 2</span><br><small data-i18n="level2_desc">طرح</small></button>
+                        <button class="level-btn" data-level="3"><span data-i18n="level3">المستوى 3</span><br><small data-i18n="level3_desc">جمع وطرح</small></button>
+                        <button class="level-btn" data-level="4"><span data-i18n="level4">المستوى 4</span><br><small data-i18n="level4_desc">ضرب</small></button>
+                        <button class="level-btn" data-level="5"><span data-i18n="level5">المستوى 5</span><br><small data-i18n="level5_desc">قسمة</small></button>
+                        <button class="level-btn" data-level="challenge"><span data-i18n="challenge">تحدي</span><br><small data-i18n="challenge_desc">مختلط</small></button>
+                    </div>
+                    <div class="question-area" id="question-area">
+                        <div class="question-text" id="question-text" data-i18n="press_start">اضغط "ابدأ" للبدء</div>
+                        <input type="number" id="practice-answer" class="practice-input" placeholder="أجب هنا" data-i18n-placeholder="answer_placeholder" disabled>
+                        <button id="practice-submit" class="btn btn-primary" data-i18n="check" disabled>تحقق</button>
+                        <button id="practice-start" class="btn btn-primary" data-i18n="start">ابدأ</button>
+                        <div class="practice-feedback" id="practice-feedback"></div>
+                    </div>
+                </div>
+            </section>
+            <section class="history-section">
+                <div class="history-card">
+                    <div class="history-header">
+                        <h3 data-i18n="history_title">📜 سجل العمليات</h3>
+                        <button id="clear-history" class="btn-text" data-i18n="clear_history">مسح السجل</button>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <div class="history-empty" data-i18n="no_history">لا توجد عمليات بعد</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <button id="practice-toggle" class="fab"><span>🎯</span></button>
+    </div>
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="settings_title">الإعدادات</h3>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item"><label data-i18n="theme_label">الوضع</label><button class="btn-toggle" id="theme-toggle-modal" data-i18n="theme_toggle">فاتح / داكن</button></div>
+                <div class="setting-item"><label data-i18n="speed_label">سرعة العرض</label><select id="default-speed"><option value="0.5" data-i18n="speed_slow">بطيء</option><option value="1" selected data-i18n="speed_normal">عادي</option><option value="1.5" data-i18n="speed_fast">سريع</option><option value="2" data-i18n="speed_veryfast">سريع جداً</option></select></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
