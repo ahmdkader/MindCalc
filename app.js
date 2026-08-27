@@ -686,20 +686,108 @@ const storage = new StorageManager();
 
 // ==================== PWA INSTALL ====================
 let deferredPrompt = null;
+let isIOS = false;
+let isStandalone = false;
+
+// Detect iOS
+function detectIOS() {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+}
+
+// Detect if running as installed PWA
+function detectStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+}
+
+// Check install eligibility
+function checkInstallEligibility() {
+    isIOS = detectIOS();
+    isStandalone = detectStandalone();
+
+    // Hide install prompt if already installed
+    if (isStandalone) {
+        const installPrompt = document.getElementById('install-prompt');
+        if (installPrompt) installPrompt.style.display = 'none';
+        return;
+    }
+
+    // For iOS, show custom instructions after a delay
+    if (isIOS && !localStorage.getItem('mindcalc_install_dismissed')) {
+        setTimeout(() => {
+            const installPrompt = document.getElementById('install-prompt');
+            if (installPrompt) {
+                installPrompt.classList.add('show');
+                // Change the install button to show iOS instructions
+                const installYes = document.getElementById('install-yes');
+                if (installYes) {
+                    installYes.textContent = i18n.currentLang === 'ar' ? 'تعليمات التثبيت' : 'Install Instructions';
+                }
+            }
+        }, 3000);
+    }
+}
+
+// Handle beforeinstallprompt (Chrome, Edge, Samsung Internet)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installPrompt = document.getElementById('install-prompt');
-    if (installPrompt && !localStorage.getItem('mindcalc_install_dismissed')) {
-        installPrompt.classList.add('show');
+
+    // Only show if not dismissed before
+    if (!localStorage.getItem('mindcalc_install_dismissed') && !isStandalone) {
+        const installPrompt = document.getElementById('install-prompt');
+        if (installPrompt) {
+            installPrompt.classList.add('show');
+        }
     }
 });
+
+// Handle app installed
 window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     const installPrompt = document.getElementById('install-prompt');
     if (installPrompt) installPrompt.classList.remove('show');
     localStorage.setItem('mindcalc_installed', 'true');
+
+    // Show success message
+    showInstallSuccess();
 });
+
+// Show install success toast
+function showInstallSuccess() {
+    const toast = document.createElement('div');
+    toast.className = 'install-toast';
+    toast.innerHTML = i18n.currentLang === 'ar' 
+        ? '✅ تم تثبيت MindCalc بنجاح!' 
+        : '✅ MindCalc installed successfully!';
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Show iOS install instructions
+function showIOSInstallInstructions() {
+    const modal = document.getElementById('ios-install-modal');
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+// Hide iOS install instructions
+function hideIOSInstallInstructions() {
+    const modal = document.getElementById('ios-install-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
 
 // ==================== MAIN APP ====================
 class MindCalcApp {
@@ -723,6 +811,7 @@ class MindCalcApp {
         this.loadSettings();
         this.renderHistory();
         visualMath.setContainer(this.visualArea);
+        checkInstallEligibility();
     }
     cacheElements() {
         this.expressionEl = document.getElementById('expression');
@@ -801,20 +890,39 @@ class MindCalcApp {
         this.settingsModal.addEventListener('click', (e) => { if (e.target === this.settingsModal) this.closeSettings(); });
         if (this.installYes) {
             this.installYes.addEventListener('click', () => {
-                if (deferredPrompt) {
+                if (isIOS) {
+                    // Show iOS install instructions
+                    showIOSInstallInstructions();
+                    if (this.installPrompt) this.installPrompt.classList.remove('show');
+                } else if (deferredPrompt) {
                     deferredPrompt.prompt();
                     deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') localStorage.setItem('mindcalc_installed', 'true');
+                        if (choiceResult.outcome === 'accepted') {
+                            localStorage.setItem('mindcalc_installed', 'true');
+                            showInstallSuccess();
+                        }
                         deferredPrompt = null;
                     });
+                    if (this.installPrompt) this.installPrompt.classList.remove('show');
                 }
-                if (this.installPrompt) this.installPrompt.classList.remove('show');
             });
         }
         if (this.installNo) {
             this.installNo.addEventListener('click', () => {
                 localStorage.setItem('mindcalc_install_dismissed', 'true');
                 if (this.installPrompt) this.installPrompt.classList.remove('show');
+            });
+        }
+
+        // iOS install modal close
+        const iosClose = document.getElementById('ios-install-close');
+        if (iosClose) {
+            iosClose.addEventListener('click', hideIOSInstallInstructions);
+        }
+        const iosModal = document.getElementById('ios-install-modal');
+        if (iosModal) {
+            iosModal.addEventListener('click', (e) => {
+                if (e.target === iosModal) hideIOSInstallInstructions();
             });
         }
     }

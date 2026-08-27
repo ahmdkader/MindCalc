@@ -9,20 +9,75 @@
     <meta name="apple-mobile-web-app-title" content="MindCalc">
     <meta name="description" content="Interactive Mental Math Calculator - Calculate and Understand">
     <meta name="keywords" content="calculator, mental math, education, math, learn">
+
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+    <!-- Splash screen for iOS -->
+    <link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+
     <title>MindCalc</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
+        <!-- Install Prompt -->
         <div class="install-prompt" id="install-prompt">
-            <span class="install-prompt-text" data-i18n="install_text">Install MindCalc?</span>
+            <div class="install-prompt-content">
+                <div class="install-prompt-icon">🧠</div>
+                <div class="install-prompt-text">
+                    <strong data-i18n="install_text">Install MindCalc on your device?</strong>
+                    <small>Add to home screen for quick access</small>
+                </div>
+            </div>
             <div class="install-prompt-btns">
                 <button class="install-btn install-btn-primary" id="install-yes" data-i18n="install_yes">Install</button>
                 <button class="install-btn install-btn-secondary" id="install-no" data-i18n="install_no">Later</button>
             </div>
         </div>
+
+        <!-- iOS Install Instructions Modal -->
+        <div class="ios-install-modal" id="ios-install-modal">
+            <div class="ios-install-content">
+                <div class="ios-install-header">
+                    <h3>📱 Install MindCalc</h3>
+                    <button class="ios-install-close" id="ios-install-close">×</button>
+                </div>
+                <div class="ios-install-body">
+                    <p>To install MindCalc on your iPhone/iPad:</p>
+                    <ol>
+                        <li>Tap the <strong>Share</strong> button <span class="ios-icon">⬆️</span> in Safari</li>
+                        <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                        <li>Tap <strong>Add</strong> in the top right</li>
+                    </ol>
+                    <div class="ios-install-visual">
+                        <div class="ios-step">
+                            <div class="ios-step-num">1</div>
+                            <span>Share</span>
+                        </div>
+                        <div class="ios-arrow">→</div>
+                        <div class="ios-step">
+                            <div class="ios-step-num">2</div>
+                            <span>Add to Home</span>
+                        </div>
+                        <div class="ios-arrow">→</div>
+                        <div class="ios-step">
+                            <div class="ios-step-num">3</div>
+                            <span>Done!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <header class="header">
             <div class="header-content">
                 <div class="logo">

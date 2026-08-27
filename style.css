@@ -1183,3 +1183,351 @@ html[dir="ltr"] .step-item.highlight { border-left-color: var(--success); }
 html[dir="ltr"] .step-number { margin-right: 0.5rem; margin-left: 0; }
 html[dir="ltr"] .history-delete { margin-left: 0.5rem; margin-right: 0; }
 html[dir="ltr"] .fab { right: 1.5rem; left: auto; }
+
+
+/* ===== Enhanced Install Prompt ===== */
+.install-prompt {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: slideUp 0.4s ease-out;
+    max-width: 400px;
+    width: calc(100% - 2rem);
+}
+
+.install-prompt.show { display: flex; }
+
+.install-prompt-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.install-prompt-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.install-prompt-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.install-prompt-text strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.install-prompt-text small {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.install-prompt-btns {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.install-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.install-btn-primary {
+    background: white;
+    color: var(--accent);
+}
+
+.install-btn-primary:hover {
+    background: var(--bg-primary);
+    transform: translateY(-1px);
+}
+
+.install-btn-secondary {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.install-btn-secondary:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Install Success Toast */
+.install-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--success);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+    z-index: 400;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.install-toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ===== iOS Install Modal ===== */
+.ios-install-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.ios-install-modal.active {
+    display: flex;
+}
+
+.ios-install-content {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    animation: modalIn 0.3s ease-out;
+}
+
+.ios-install-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.ios-install-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.ios-install-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.ios-install-close:hover {
+    background: var(--bg-secondary);
+    color: var(--danger);
+}
+
+.ios-install-body {
+    color: var(--text-primary);
+}
+
+.ios-install-body p {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.ios-install-body ol {
+    padding-right: 1.5rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.8;
+}
+
+html[dir="ltr"] .ios-install-body ol {
+    padding-right: 0;
+    padding-left: 1.5rem;
+}
+
+.ios-install-body li {
+    margin-bottom: 0.5rem;
+}
+
+.ios-icon {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.ios-install-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    margin-top: 0.5rem;
+}
+
+.ios-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.ios-step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.ios-step span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.ios-arrow {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+}
+
+/* ===== Visual Method Specific Styles ===== */
+.visual-method-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.visual-method-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.visual-number-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.visual-number-block {
+    min-width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.visual-number-block.tens {
+    background: var(--accent);
+    color: white;
+    padding: 0 12px;
+}
+
+.visual-number-block.ones {
+    background: var(--warning);
+    color: #333;
+    width: 40px;
+}
+
+.visual-number-block.result {
+    background: var(--success);
+    color: white;
+    padding: 0 16px;
+    font-size: 1.1rem;
+}
+
+.visual-operator {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.visual-equals {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.visual-annotation {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+}
+
+/* Animation for visual blocks appearing */
+@keyframes visualBlockAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.visual-number-block {
+    animation: visualBlockAppear 0.4s ease-out forwards;
+}
+
+/* Responsive for iOS modal */
+@media (max-width: 400px) {
+    .ios-install-content {
+        padding: 1rem;
+    }
+
+    .ios-install-visual {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .ios-arrow {
+        transform: rotate(90deg);
+    }
+}
