@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4e73df">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MindCalc">
+    <meta name="description" content="Interactive Mental Math Calculator - Calculate and Understand">
+    <meta name="keywords" content="calculator, mental math, education, math, learn">
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-startup-image" href="icon-512.png">
+
+    <title>MindCalc</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Install Prompt -->
+        <div class="install-prompt" id="install-prompt">
+            <div class="install-prompt-content">
+                <div class="install-prompt-icon">🧠</div>
+                <div class="install-prompt-text">
+                    <strong data-i18n="install_text">Install MindCalc on your device?</strong>
+                    <small>Add to home screen for quick access</small>
+                </div>
+            </div>
+            <div class="install-prompt-btns">
+                <button class="install-btn install-btn-primary" id="install-yes" data-i18n="install_yes">Install</button>
+                <button class="install-btn install-btn-secondary" id="install-no" data-i18n="install_no">Later</button>
+            </div>
+        </div>
+
+        <!-- iOS Install Modal -->
+        <div class="ios-install-modal" id="ios-install-modal">
+            <div class="ios-install-content">
+                <div class="ios-install-header">
+                    <h3>📱 Install MindCalc</h3>
+                    <button class="ios-install-close" id="ios-install-close">×</button>
+                </div>
+                <div class="ios-install-body">
+                    <p>To install MindCalc on your iPhone/iPad:</p>
+                    <ol>
+                        <li>Tap the <strong>Share</strong> button <span class="ios-icon">⬆️</span> in Safari</li>
+                        <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                        <li>Tap <strong>Add</strong> in the top right</li>
+                    </ol>
+                    <div class="ios-install-visual">
+                        <div class="ios-step">
+                            <div class="ios-step-num">1</div>
+                            <span>Share</span>
+                        </div>
+                        <div class="ios-arrow">→</div>
+                        <div class="ios-step">
+                            <div class="ios-step-num">2</div>
+                            <span>Add to Home</span>
+                        </div>
+                        <div class="ios-arrow">→</div>
+                        <div class="ios-step">
+                            <div class="ios-step-num">3</div>
+                            <span>Done!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div class="history-modal" id="history-modal">
+            <div class="history-modal-content">
+                <div class="history-modal-header">
+                    <h3 data-i18n="history_title">📜 سجل العمليات</h3>
+                    <button class="history-modal-close" id="history-modal-close">×</button>
+                </div>
+                <div class="history-modal-body">
+                    <div class="history-list" id="history-list">
+                        <div class="history-empty" data-i18n="no_history">لا توجد عمليات بعد</div>
+                    </div>
+                </div>
+                <div class="history-modal-footer">
+                    <button id="clear-history" class="btn-text" data-i18n="clear_history">مسح السجل</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solve Yourself Modal -->
+        <div class="solve-modal" id="solve-modal">
+            <div class="solve-modal-content">
+                <div class="solve-modal-header">
+                    <h3 data-i18n="solve_yourself_title">✏️ حلها بنفسك</h3>
+                    <button class="solve-modal-close" id="solve-modal-close">×</button>
+                </div>
+                <div class="solve-modal-body" id="solve-modal-body">
+                    <!-- Dynamic content - one step at a time -->
+                </div>
+                <div class="solve-modal-footer">
+                    <button id="solve-check" class="btn btn-primary" data-i18n="check_step" disabled>تحقق</button>
+                    <button id="solve-next-step" class="btn btn-secondary" data-i18n="next_step" disabled>الخطوة التالية</button>
+                </div>
+            </div>
+        </div>
+
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🧠</span>
+                    <div class="logo-text">
+                        <h1>MindCalc</h1>
+                        <span class="subtitle" data-i18n="subtitle">احسبها... وافهمها</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <!-- Menu Button -->
+                    <div class="menu-wrapper">
+                        <button id="menu-btn" class="icon-btn menu-btn" aria-label="Menu">
+                            <span>☰</span>
+                        </button>
+                        <div class="menu-dropdown" id="menu-dropdown">
+                            <button class="menu-item" id="menu-settings">
+                                <span>⚙️</span>
+                                <span id="menu-settings-text" data-i18n="menu_settings">⚙️ الإعدادات</span>
+                            </button>
+                            <button class="menu-item" id="menu-history">
+                                <span>📜</span>
+                                <span id="menu-history-text" data-i18n="menu_history">📜 السجل</span>
+                            </button>
+                            <button class="menu-item" id="menu-practice">
+                                <span>🎯</span>
+                                <span id="menu-practice-text" data-i18n="menu_practice">🎯 التدريب</span>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="lang-toggle" class="icon-btn lang-btn" aria-label="Change language">
+                        <span id="lang-icon">EN</span>
+                    </button>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main View -->
+        <main class="main-content" id="main-view">
+            <section class="calculator-section">
+                <div class="calculator-card">
+                    <div class="display">
+                        <div class="expression" id="expression"></div>
+                        <div class="result" id="result">0</div>
+                    </div>
+                    <div class="calc-buttons">
+                        <button class="btn btn-special" data-action="ac" data-i18n="btn_ac">AC</button>
+                        <button class="btn btn-special" data-action="del" data-i18n="btn_del">DEL</button>
+                        <button class="btn btn-special" data-action="percent" data-i18n="btn_percent">%</button>
+                        <button class="btn btn-operator" data-action="divide">÷</button>
+                        <button class="btn" data-number="7">7</button>
+                        <button class="btn" data-number="8">8</button>
+                        <button class="btn" data-number="9">9</button>
+                        <button class="btn btn-operator" data-action="multiply">×</button>
+                        <button class="btn" data-number="4">4</button>
+                        <button class="btn" data-number="5">5</button>
+                        <button class="btn" data-number="6">6</button>
+                        <button class="btn btn-operator" data-action="subtract">−</button>
+                        <button class="btn" data-number="1">1</button>
+                        <button class="btn" data-number="2">2</button>
+                        <button class="btn" data-number="3">3</button>
+                        <button class="btn btn-operator" data-action="add">+</button>
+                        <button class="btn" data-number="0">0</button>
+                        <button class="btn" data-action="decimal">.</button>
+                        <button class="btn" data-action="negate">±</button>
+                        <button class="btn btn-equals" data-action="equals">=</button>
+                    </div>
+                    <div class="explain-actions">
+                        <button id="explain-btn" class="explain-btn" disabled>
+                            <span>🧠</span> <span data-i18n="explain_btn">اشرح لي الطريقة</span>
+                        </button>
+                        <button id="solve-yourself-btn" class="solve-yourself-btn" disabled>
+                            <span>✏️</span> <span data-i18n="solve_yourself_btn">حلها بنفسك</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <section class="demo-section">
+                <h3 data-i18n="demo_title">أمثلة سريعة</h3>
+                <div class="demo-chips">
+                    <button class="demo-chip" data-expr="8 + 6">8 + 6</button>
+                    <button class="demo-chip" data-expr="48 + 27">48 + 27</button>
+                    <button class="demo-chip" data-expr="52 - 18">52 - 18</button>
+                    <button class="demo-chip" data-expr="12 × 6">12 × 6</button>
+                    <button class="demo-chip" data-expr="25 × 4">25 × 4</button>
+                    <button class="demo-chip" data-expr="91 ÷ 7">91 ÷ 7</button>
+                </div>
+            </section>
+            <section class="explanation-section" id="explanation-section" style="display: none;">
+                <div class="explanation-card">
+                    <div class="explanation-header">
+                        <h3>🧠 <span data-i18n="solution_method">طريقة الحل</span></h3>
+                        <div class="strategy-badge" id="strategy-badge"></div>
+                    </div>
+                    <div class="steps-area" id="steps-area"></div>
+                </div>
+            </section>
+
+            <!-- Navigation Cards (kept for backward compatibility, also accessible from menu) -->
+            <section class="nav-cards">
+                <button class="nav-card" id="history-nav-card">
+                    <span class="nav-card-icon">📜</span>
+                    <div class="nav-card-text">
+                        <span class="nav-card-title" data-i18n="history_nav_title">السجل</span>
+                        <span class="nav-card-desc" data-i18n="history_nav_desc">شوف عملياتك السابقة</span>
+                    </div>
+                </button>
+                <button class="nav-card" id="practice-nav-card">
+                    <span class="nav-card-icon">🎯</span>
+                    <div class="nav-card-text">
+                        <span class="nav-card-title" data-i18n="practice_nav_title">درب نفسك</span>
+                        <span class="nav-card-desc" data-i18n="practice_nav_desc">تمرن وحسّن مهاراتك</span>
+                    </div>
+                </button>
+            </section>
+        </main>
+
+        <!-- Practice View (separate page) -->
+        <main class="practice-view" id="practice-view" style="display: none;">
+            <div class="practice-card">
+                <div class="practice-header">
+                    <h3>🎯 <span data-i18n="practice_mode">وضع التدريب</span></h3>
+                    <div class="score-display"><span data-i18n="score">النقاط:</span><span id="practice-score">0</span></div>
+                </div>
+                <div class="level-selector">
+                    <button class="level-btn active" data-level="1"><span data-i18n="level1">المستوى 1</span><br><small data-i18n="level1_desc">جمع بسيط</small></button>
+                    <button class="level-btn" data-level="2"><span data-i18n="level2">المستوى 2</span><br><small data-i18n="level2_desc">طرح</small></button>
+                    <button class="level-btn" data-level="3"><span data-i18n="level3">المستوى 3</span><br><small data-i18n="level3_desc">جمع وطرح</small></button>
+                    <button class="level-btn" data-level="4"><span data-i18n="level4">المستوى 4</span><br><small data-i18n="level4_desc">ضرب</small></button>
+                    <button class="level-btn" data-level="5"><span data-i18n="level5">المستوى 5</span><br><small data-i18n="level5_desc">قسمة</small></button>
+                    <button class="level-btn" data-level="challenge"><span data-i18n="challenge">تحدي</span><br><small data-i18n="challenge_desc">مختلط</small></button>
+                </div>
+                <div class="question-area" id="question-area">
+                    <div class="question-text" id="question-text" data-i18n="press_start">اضغط "ابدأ" للبدء</div>
+                    <input type="number" id="practice-answer" class="practice-input" placeholder="أجب هنا" data-i18n-placeholder="answer_placeholder" disabled>
+                    <div class="practice-actions">
+                        <button id="practice-submit" class="btn btn-primary" data-i18n="check" disabled>تحقق</button>
+                        <button id="practice-next" class="btn btn-secondary" data-i18n="next" disabled>التالي</button>
+                    </div>
+                    <button id="practice-start" class="btn btn-primary" data-i18n="start">ابدأ</button>
+                    <div class="practice-feedback" id="practice-feedback"></div>
+                    <div class="practice-explanation-area" id="practice-explanation-area"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Back to Calculator Button (shown in practice view) -->
+        <button id="back-to-calc" class="back-btn" style="display: none;">
+            <span>←</span> <span data-i18n="back_to_calc">رجوع للآلة</span>
+        </button>
+    </div>
+
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="settings_title">الإعدادات</h3>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item"><label data-i18n="theme_label">الوضع</label><button class="btn-toggle" id="theme-toggle-modal" data-i18n="theme_toggle">فاتح / داكن</button></div>
+                <div class="setting-item"><label data-i18n="speed_label">سرعة العرض</label><select id="default-speed"><option value="0.5" data-i18n="speed_slow">بطيء</option><option value="1" selected data-i18n="speed_normal">عادي</option><option value="1.5" data-i18n="speed_fast">سريع</option><option value="2" data-i18n="speed_veryfast">سريع جداً</option></select></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
