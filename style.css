@@ -1543,3 +1543,253 @@ html[dir="ltr"] .history-delete { margin-left: 0.5rem; margin-right: 0; }
 html[dir="ltr"] .back-btn { right: 1.5rem; left: auto; }
 html[dir="ltr"] .ios-install-body ol { padding-left: 1.5rem; padding-right: 0; }
 html[dir="ltr"] .nav-card-text { text-align: left; }
+
+
+/* ===== Menu Dropdown ===== */
+.menu-wrapper {
+    position: relative;
+}
+
+.menu-btn {
+    font-size: 1.3rem;
+}
+
+.menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    z-index: 150;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: menuSlideDown 0.2s ease-out;
+}
+
+.menu-dropdown.active {
+    display: flex;
+}
+
+@keyframes menuSlideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: start;
+    font-family: inherit;
+    width: 100%;
+}
+
+.menu-item:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.menu-item span:first-child {
+    font-size: 1.2rem;
+}
+
+/* ===== Solve Modal - One Step at a Time ===== */
+.solve-step.active-step {
+    animation: stepFadeIn 0.3s ease-out;
+}
+
+@keyframes stepFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.solve-step-indicator {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+}
+
+/* Fix for dark mode - ensure all elements update */
+[data-theme="dark"] .menu-dropdown {
+    background: var(--bg-card);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .menu-item:hover {
+    background: var(--accent-light);
+}
+
+/* Ensure text colors update in dark mode */
+[data-theme="dark"] .expression {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .result {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .question-text {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .practice-input {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .practice-input:focus {
+    border-color: var(--accent);
+}
+
+[data-theme="dark"] .solve-step-input {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .solve-step-input:focus {
+    border-color: var(--accent);
+}
+
+[data-theme="dark"] .history-item {
+    background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .history-item:hover {
+    background: var(--accent-light);
+}
+
+[data-theme="dark"] .level-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .level-btn:hover,
+[data-theme="dark"] .level-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .demo-chip {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .demo-chip:hover {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .btn-special {
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-operator {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .btn-operator:hover {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .btn-equals {
+    background: var(--accent);
+    color: white;
+}
+
+[data-theme="dark"] .display {
+    background: var(--bg-secondary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .calculator-card,
+[data-theme="dark"] .practice-card,
+[data-theme="dark"] .explanation-card,
+[data-theme="dark"] .demo-section,
+[data-theme="dark"] .nav-card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .history-modal-content,
+[data-theme="dark"] .solve-modal-content,
+[data-theme="dark"] .ios-install-content {
+    background: var(--bg-card);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .steps-area,
+[data-theme="dark"] .question-area,
+[data-theme="dark"] .practice-explanation {
+    background: var(--bg-secondary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .step-item {
+    background: var(--bg-card);
+}
+
+[data-theme="dark"] .back-btn {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background: var(--accent-light);
+}
+
+[data-theme="dark"] .install-prompt {
+    background: var(--accent);
+}
+
+[data-theme="dark"] select {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+/* RTL fixes for menu */
+html[dir="rtl"] .menu-dropdown {
+    right: 0;
+    left: auto;
+}
+
+html[dir="ltr"] .menu-dropdown {
+    right: auto;
+    left: 0;
+}
+
+html[dir="rtl"] .menu-item {
+    text-align: right;
+}
+
+html[dir="ltr"] .menu-item {
+    text-align: left;
+}

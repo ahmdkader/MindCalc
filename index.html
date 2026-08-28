@@ -99,10 +99,9 @@
                     <button class="solve-modal-close" id="solve-modal-close">×</button>
                 </div>
                 <div class="solve-modal-body" id="solve-modal-body">
-                    <!-- Dynamic content -->
+                    <!-- Dynamic content - one step at a time -->
                 </div>
                 <div class="solve-modal-footer">
-                    <div class="solve-progress" id="solve-progress"></div>
                     <button id="solve-check" class="btn btn-primary" data-i18n="check_step" disabled>تحقق</button>
                     <button id="solve-next-step" class="btn btn-secondary" data-i18n="next_step" disabled>الخطوة التالية</button>
                 </div>
@@ -119,14 +118,31 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <!-- Menu Button -->
+                    <div class="menu-wrapper">
+                        <button id="menu-btn" class="icon-btn menu-btn" aria-label="Menu">
+                            <span>☰</span>
+                        </button>
+                        <div class="menu-dropdown" id="menu-dropdown">
+                            <button class="menu-item" id="menu-settings">
+                                <span>⚙️</span>
+                                <span id="menu-settings-text" data-i18n="menu_settings">⚙️ الإعدادات</span>
+                            </button>
+                            <button class="menu-item" id="menu-history">
+                                <span>📜</span>
+                                <span id="menu-history-text" data-i18n="menu_history">📜 السجل</span>
+                            </button>
+                            <button class="menu-item" id="menu-practice">
+                                <span>🎯</span>
+                                <span id="menu-practice-text" data-i18n="menu_practice">🎯 التدريب</span>
+                            </button>
+                        </div>
+                    </div>
                     <button id="lang-toggle" class="icon-btn lang-btn" aria-label="Change language">
                         <span id="lang-icon">EN</span>
                     </button>
                     <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
                         <span class="theme-icon">🌙</span>
-                    </button>
-                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
-                        <span>⚙️</span>
                     </button>
                 </div>
             </div>
@@ -193,7 +209,7 @@
                 </div>
             </section>
 
-            <!-- Navigation Cards -->
+            <!-- Navigation Cards (kept for backward compatibility, also accessible from menu) -->
             <section class="nav-cards">
                 <button class="nav-card" id="history-nav-card">
                     <span class="nav-card-icon">📜</span>

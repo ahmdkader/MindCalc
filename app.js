@@ -86,6 +86,15 @@ const translations = {
         subtract_direct: "{a} - {b} = {result}",
         multiply_direct: "{a} × {b} = {result}",
         add_direct: "{a} + {b} = {result}",
+        menu_title: "القائمة",
+        menu_settings: "⚙️ الإعدادات",
+        menu_history: "📜 السجل",
+        menu_practice: "🎯 التدريب",
+        friendly_numbers_strategy: "استراتيجية الأعداد المألوفة",
+        round_to_friendly: "نقرب {a} إلى العدد المألوف {friendly}:",
+        adjust_other: "نعدل العدد الثاني: {b} - {adjust} = {newB}",
+        add_friendly: "الآن نجمع: {friendly} + {newB} = {result}",
+        skip_decompose_simple: "عملية بسيطة مباشرة",
     },
     en: {
         subtitle: "Calculate... and Understand",
@@ -164,6 +173,15 @@ const translations = {
         subtract_direct: "{a} - {b} = {result}",
         multiply_direct: "{a} × {b} = {result}",
         add_direct: "{a} + {b} = {result}",
+        menu_title: "Menu",
+        menu_settings: "⚙️ Settings",
+        menu_history: "📜 History",
+        menu_practice: "🎯 Practice",
+        friendly_numbers_strategy: "Friendly Numbers Strategy",
+        round_to_friendly: "Round {a} to the friendly number {friendly}:",
+        adjust_other: "Adjust the other number: {b} - {adjust} = {newB}",
+        add_friendly: "Now add: {friendly} + {newB} = {result}",
+        skip_decompose_simple: "Simple direct operation",
     }
 };
 
@@ -188,8 +206,10 @@ class I18N {
     }
     applyLanguage() {
         const html = document.getElementById('html-root');
-        html.setAttribute('lang', this.currentLang);
-        html.setAttribute('dir', this.currentLang === 'ar' ? 'rtl' : 'ltr');
+        if (html) {
+            html.setAttribute('lang', this.currentLang);
+            html.setAttribute('dir', this.currentLang === 'ar' ? 'rtl' : 'ltr');
+        }
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[this.currentLang][key]) el.textContent = translations[this.currentLang][key];
@@ -202,6 +222,14 @@ class I18N {
         if (langIcon) langIcon.textContent = this.currentLang === 'ar' ? 'EN' : 'AR';
         const subtitle = document.querySelector('.subtitle');
         if (subtitle) subtitle.textContent = this.get('subtitle');
+
+        // Update menu items
+        const menuSettings = document.getElementById('menu-settings-text');
+        if (menuSettings) menuSettings.textContent = this.get('menu_settings');
+        const menuHistory = document.getElementById('menu-history-text');
+        if (menuHistory) menuHistory.textContent = this.get('menu_history');
+        const menuPractice = document.getElementById('menu-practice-text');
+        if (menuPractice) menuPractice.textContent = this.get('menu_practice');
     }
 }
 const i18n = new I18N();
@@ -307,9 +335,14 @@ const mathEngine = new MathEngine();
 class StrategyEngine {
     constructor() {
         this.strategies = [
-            this.complementToTen, this.decomposeAddition, this.decomposeSubtraction,
-            this.distributiveMultiplication, this.friendlyNumberMultiplication,
-            this.decompositionDivision, this.directCalculation
+            this.complementToTen,
+            this.friendlyNumbersAddition,  // NEW: Friendly numbers strategy
+            this.decomposeAddition,
+            this.decomposeSubtraction,
+            this.distributiveMultiplication,
+            this.friendlyNumberMultiplication,
+            this.decompositionDivision,
+            this.directCalculation
         ];
     }
     analyze(expr) {
@@ -324,6 +357,96 @@ class StrategyEngine {
         }
         return bestStrategy || this.directCalculation.analyze(expr);
     }
+
+    // NEW: Friendly Numbers Strategy for Addition
+    // For 48 + 27: round 48 to 50 (add 2), subtract 2 from 27 -> 25, then 50 + 25 = 75
+    friendlyNumbersAddition(a, op, b, displayOp) {
+        if (op !== '+') return null;
+        const sum = a + b;
+
+        // Skip if either number is less than 10 (use complementToTen instead)
+        if (a < 10 || b < 10) return null;
+
+        // Skip if both numbers end in 0 (simple operation, no decomposition needed)
+        if (a % 10 === 0 && b % 10 === 0) return null;
+
+        // Skip if one number ends in 0 (simple enough)
+        if (a % 10 === 0 || b % 10 === 0) return null;
+
+        // Find which number is closer to a "friendly" number (multiple of 10)
+        const aOnes = a % 10;
+        const bOnes = b % 10;
+
+        // Determine which number to round and in which direction
+        let roundUp, roundDown, adjust, friendly, other, newOther;
+
+        // Prefer rounding up if ones digit >= 5, down if < 5
+        // But also consider which gives a simpler adjustment
+        const aDistUp = 10 - aOnes;  // distance to next ten (e.g., 48 -> 50, dist=2)
+        const aDistDown = aOnes;      // distance to prev ten (e.g., 48 -> 40, dist=8)
+        const bDistUp = 10 - bOnes;
+        const bDistDown = bOnes;
+
+        // Choose the smaller adjustment
+        let useA, dist, direction;
+
+        // Find minimum distance
+        const minDist = Math.min(aDistUp, aDistDown, bDistUp, bDistDown);
+
+        if (minDist === aDistUp) {
+            useA = true; dist = aDistUp; direction = 'up';
+        } else if (minDist === aDistDown) {
+            useA = true; dist = aDistDown; direction = 'down';
+        } else if (minDist === bDistUp) {
+            useA = false; dist = bDistUp; direction = 'up';
+        } else {
+            useA = false; dist = bDistDown; direction = 'down';
+        }
+
+        if (useA) {
+            if (direction === 'up') {
+                friendly = a + dist;
+                other = b;
+                newOther = b - dist;
+            } else {
+                friendly = a - dist;
+                other = b;
+                newOther = b + dist;
+            }
+            adjust = dist;
+        } else {
+            if (direction === 'up') {
+                friendly = b + dist;
+                other = a;
+                newOther = a - dist;
+            } else {
+                friendly = b - dist;
+                other = a;
+                newOther = a + dist;
+            }
+            adjust = dist;
+        }
+
+        // Only use this strategy if the adjustment is small (<= 5) and makes sense
+        if (adjust > 5) return null;
+
+        const steps = [
+            { text: i18n.get('round_to_friendly', {a: useA ? a : b, friendly}), answer: null },
+            { text: `${useA ? a : b} ${displayOp} ${adjust} = ${friendly}`, answer: friendly },
+            { text: i18n.get('adjust_other', {b: useA ? b : a, adjust, newB: newOther}), answer: null },
+            { text: `${useA ? b : a} ${displayOp === '+' ? '-' : '+'} ${adjust} = ${newOther}`, answer: newOther },
+            { text: i18n.get('add_friendly', {friendly, newB: newOther, result: sum}), answer: sum },
+            { text: i18n.get('result_is', {result: sum}), answer: sum, isFinal: true }
+        ];
+
+        return { 
+            score: 0.92, 
+            name: i18n.get('friendly_numbers_strategy'), 
+            nameEn: 'Friendly Numbers Strategy', 
+            steps 
+        };
+    }
+
     complementToTen(a, op, b, displayOp) {
         if (op !== '+') return null;
         const sum = a + b;
@@ -348,9 +471,20 @@ class StrategyEngine {
     }
     decomposeAddition(a, op, b, displayOp) {
         if (op !== '+') return null;
+
+        // SKIP DECOMPOSITION for simple cases:
+        // 1. Both numbers end in 0 (e.g., 90 + 10)
+        // 2. One number ends in 0 (e.g., 50 + 23)
+        if (a % 10 === 0 && b % 10 === 0) return null;
+        if (a % 10 === 0 || b % 10 === 0) return null;
+
+        // 3. Numbers less than 10 (handled by complementToTen)
+        if (a < 10 || b < 10) return null;
+
         const aTens = Math.floor(a / 10) * 10, aOnes = a % 10;
         const bTens = Math.floor(b / 10) * 10, bOnes = b % 10;
         const sum = a + b;
+
         if (a >= 10 && b >= 10) {
             const tensSum = aTens + bTens, onesSum = aOnes + bOnes;
             const steps = [
@@ -690,6 +824,12 @@ class MindCalcApp {
         this.installPrompt = document.getElementById('install-prompt');
         this.installYes = document.getElementById('install-yes');
         this.installNo = document.getElementById('install-no');
+        // Menu elements
+        this.menuBtn = document.getElementById('menu-btn');
+        this.menuDropdown = document.getElementById('menu-dropdown');
+        this.menuSettings = document.getElementById('menu-settings');
+        this.menuHistory = document.getElementById('menu-history');
+        this.menuPractice = document.getElementById('menu-practice');
     }
     bindEvents() {
         document.querySelectorAll('.calc-buttons .btn').forEach(btn => {
@@ -738,6 +878,39 @@ class MindCalcApp {
             storage.updateSetting('defaultSpeed', parseFloat(e.target.value));
         });
         this.settingsModal.addEventListener('click', (e) => { if (e.target === this.settingsModal) this.closeSettings(); });
+
+        // Menu button events
+        if (this.menuBtn) {
+            this.menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleMenu();
+            });
+        }
+        if (this.menuSettings) {
+            this.menuSettings.addEventListener('click', () => {
+                this.closeMenu();
+                this.openSettings();
+            });
+        }
+        if (this.menuHistory) {
+            this.menuHistory.addEventListener('click', () => {
+                this.closeMenu();
+                this.openHistoryModal();
+            });
+        }
+        if (this.menuPractice) {
+            this.menuPractice.addEventListener('click', () => {
+                this.closeMenu();
+                this.togglePracticeMode();
+            });
+        }
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (this.menuDropdown && !this.menuDropdown.contains(e.target) && e.target !== this.menuBtn) {
+                this.closeMenu();
+            }
+        });
+
         if (this.installYes) {
             this.installYes.addEventListener('click', () => {
                 if (isIOS) {
@@ -773,6 +946,19 @@ class MindCalcApp {
             });
         }
     }
+
+    // ===== MENU =====
+    toggleMenu() {
+        if (this.menuDropdown) {
+            this.menuDropdown.classList.toggle('active');
+        }
+    }
+    closeMenu() {
+        if (this.menuDropdown) {
+            this.menuDropdown.classList.remove('active');
+        }
+    }
+
     toggleLanguage() {
         i18n.toggleLanguage();
         if (this.currentStrategy) {
@@ -932,7 +1118,7 @@ class MindCalcApp {
         setTimeout(() => { this.showExplanation(); }, 300);
     }
 
-    // ===== SOLVE YOURSELF MODE =====
+    // ===== SOLVE YOURSELF MODE (One step at a time) =====
     openSolveModal() {
         if (!this.currentExpr || !this.currentResult) return;
         this.solveStrategy = strategyEngine.analyze(this.currentExpr);
@@ -954,72 +1140,71 @@ class MindCalcApp {
         if (!this.solveStrategy) return;
         this.solveModalBody.innerHTML = '';
 
-        // Show all steps, current one is active
-        this.solveStrategy.steps.forEach((step, index) => {
-            const stepDiv = document.createElement('div');
-            stepDiv.className = 'solve-step';
+        // Show ONLY the current step (not all steps)
+        const step = this.solveStrategy.steps[this.solveCurrentStep];
+        if (!step) return;
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'solve-step-question';
-            questionDiv.textContent = step.text;
-            stepDiv.appendChild(questionDiv);
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'solve-step active-step';
 
-            if (step.answer !== null && !step.isFinal) {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'solve-step-input';
-                input.placeholder = i18n.get('enter_answer');
-                input.dataset.stepIndex = index;
-                input.dataset.expected = step.answer;
-
-                if (index < this.solveCurrentStep) {
-                    input.value = step.answer;
-                    input.disabled = true;
-                    input.classList.add('correct');
-                } else if (index === this.solveCurrentStep) {
-                    input.disabled = false;
-                    setTimeout(() => input.focus(), 100);
-                } else {
-                    input.disabled = true;
-                }
-
-                stepDiv.appendChild(input);
-                this.solveStepInputs.push(input);
-
-                // Feedback area
-                const feedback = document.createElement('div');
-                feedback.className = 'solve-step-feedback';
-                feedback.id = `solve-feedback-${index}`;
-                stepDiv.appendChild(feedback);
-            }
-
-            this.solveModalBody.appendChild(stepDiv);
-        });
-
-        this.updateSolveProgress();
-        this.updateSolveButtons();
-    }
-    updateSolveProgress() {
-        const total = this.solveStrategy.steps.length;
-        this.solveProgress.textContent = i18n.get('step_progress', {
+        // Step indicator
+        const stepIndicator = document.createElement('div');
+        stepIndicator.className = 'solve-step-indicator';
+        stepIndicator.textContent = i18n.get('step_progress', {
             current: this.solveCurrentStep + 1,
-            total: total
+            total: this.solveStrategy.steps.length
         });
+        stepDiv.appendChild(stepIndicator);
+
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'solve-step-question';
+        questionDiv.textContent = step.text;
+        stepDiv.appendChild(questionDiv);
+
+        if (step.answer !== null && !step.isFinal) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'solve-step-input';
+            input.placeholder = i18n.get('enter_answer');
+            input.dataset.stepIndex = this.solveCurrentStep;
+            input.dataset.expected = step.answer;
+            input.disabled = false;
+            setTimeout(() => input.focus(), 100);
+            stepDiv.appendChild(input);
+            this.solveStepInputs = [input];
+
+            // Feedback area
+            const feedback = document.createElement('div');
+            feedback.className = 'solve-step-feedback';
+            feedback.id = `solve-feedback-${this.solveCurrentStep}`;
+            stepDiv.appendChild(feedback);
+        }
+
+        this.solveModalBody.appendChild(stepDiv);
+        this.updateSolveButtons();
     }
     updateSolveButtons() {
         const currentStep = this.solveStrategy.steps[this.solveCurrentStep];
-        if (!currentStep || currentStep.answer === null) {
+        if (!currentStep) return;
+
+        if (currentStep.answer === null || currentStep.isFinal) {
             // This step has no answer to check, just show next
             this.solveCheck.disabled = true;
+            this.solveCheck.style.display = 'none';
             this.solveNextStep.disabled = false;
+            this.solveNextStep.style.display = 'inline-block';
         } else {
             this.solveCheck.disabled = false;
+            this.solveCheck.style.display = 'inline-block';
             this.solveNextStep.disabled = true;
+            this.solveNextStep.style.display = 'none';
         }
 
         // If last step
         if (this.solveCurrentStep >= this.solveStrategy.steps.length - 1) {
             this.solveNextStep.textContent = i18n.get('next');
+        } else {
+            this.solveNextStep.textContent = i18n.get('next_step');
         }
     }
     checkSolveStep() {
@@ -1042,7 +1227,9 @@ class MindCalcApp {
                 feedback.className = 'solve-step-feedback correct';
             }
             this.solveCheck.disabled = true;
+            this.solveCheck.style.display = 'none';
             this.solveNextStep.disabled = false;
+            this.solveNextStep.style.display = 'inline-block';
             this.solveNextStep.focus();
         } else {
             input.classList.add('wrong');
@@ -1106,7 +1293,7 @@ class MindCalcApp {
         }
     }
 
-    // ===== PRACTICE MODE (Separate Page) =====
+    // ===== PRACTICE MODE =====
     togglePracticeMode() {
         this.isPracticeMode = !this.isPracticeMode;
         if (this.isPracticeMode) {
@@ -1252,14 +1439,23 @@ class MindCalcApp {
     }
     toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) { document.documentElement.removeAttribute('data-theme'); storage.updateSetting('theme', 'light'); }
-        else { document.documentElement.setAttribute('data-theme', 'dark'); storage.updateSetting('theme', 'dark'); }
+        if (isDark) { 
+            document.documentElement.removeAttribute('data-theme'); 
+            storage.updateSetting('theme', 'light'); 
+        }
+        else { 
+            document.documentElement.setAttribute('data-theme', 'dark'); 
+            storage.updateSetting('theme', 'dark'); 
+        }
         this.updateThemeIcon();
     }
     updateThemeIcon() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const icon = this.themeToggle.querySelector('.theme-icon');
         if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+        // Also update modal theme icon if exists
+        const modalIcon = document.querySelector('#theme-toggle-modal .theme-icon');
+        if (modalIcon) modalIcon.textContent = isDark ? '☀️' : '🌙';
     }
     openSettings() { this.settingsModal.classList.add('active'); }
     closeSettings() { this.settingsModal.classList.remove('active'); }
