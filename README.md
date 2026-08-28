@@ -1,46 +1,41 @@
-# MindCalc 🧠 v3.0
+# MindCalc 🧠 v4.0
 
 **Interactive Mental Math Calculator** with step-by-step explanations.
 
 > Calculate... and Understand | احسبها... وافهمها
 
-## What's New in v3.0
+## What's New in v4.0
 
-### 🧠 Mental Math Only
-- Removed Visual Method tab — now shows explanation directly
-- All steps appear at once when you tap "Explain the Method"
-- Clean, focused mental math learning experience
+### 🧮 Unified Calculator Layout
+- Calculator buttons are identical in both Arabic and English
+- Always LTR layout for consistent number pad
+- Same button positions regardless of language
+
+### 🧠 Mental Math + Solve Yourself
+- "Explain the Method" — shows all steps at once
+- "Solve Yourself" — interactive step-by-step solving with input fields
+- Each step must be answered correctly before moving to the next
+
+### 📱 Navigation Cards
+- History card: 📜 السجل — View past operations
+- Practice card: 🎯 درب نفسك — Training mode
+- Cards appear below the calculator
 
 ### 📱 Separate Practice Page
-- Practice mode is now a separate full page (not a section)
-- Score always visible during practice
-- "Next" button to move to next question after checking
-- "Check" button disabled after answering, "Next" enabled
+- Full-page practice mode
+- Score always visible
+- Check → Next flow
 - Back button to return to calculator
 
-### 📜 History Modal
-- History is now a modal popup instead of a section
-- Tap the 📜 icon in header to open
-- Same click-to-load functionality
+### ✨ Smart Features
+- After calculation, pressing any number starts fresh
+- Button press feedback (scale + shadow)
+- Smart number decomposition (larger number first)
+- Example: `20 × 23` → decomposes 23, not 20
 
-### ✨ Smart Calculator Behavior
-- After calculating, pressing any number starts a NEW calculation
-- Buttons have active/pressed visual feedback
-- Clean reset between operations
-
-### 🔧 Smart Number Decomposition
-- Multiplication now decomposes the LARGER number automatically
-- Example: `20 × 23` → decomposes 23 (not 20)
-- Shows: `23 = 20 + 3`, then `20 × 20 = 400`, `20 × 3 = 60`
-
-### 🎨 Brand New Logo & Icons
-- Custom brain + math symbols logo
-- Full icon set for all PWA requirements
-
-### 📱 True PWA Install Support
-- Chrome/Edge: Native install prompt
-- iOS Safari: Custom install instructions modal
-- Samsung Internet: Full support
+### 🎨 Brand New Logo & PWA Support
+- Custom brain + math symbols icon
+- Full PWA install support (Chrome, iOS, Samsung)
 
 ## File Structure
 
@@ -59,26 +54,19 @@
 ### Android (Chrome)
 1. Open in Chrome
 2. Tap "Install" when prompted
-3. Or ⋮ → "Install app"
 
 ### iOS (Safari)
 1. Open in Safari
-2. Tap Share ⬆️
-3. "Add to Home Screen"
-4. Tap "Add"
+2. Tap Share ⬆️ → "Add to Home Screen"
 
 ### Desktop (Chrome/Edge)
 1. Click install icon in address bar
-2. Or menu → "Install MindCalc"
 
 ## Deploy to GitHub Pages
 
 1. Upload all files to repo
-2. Settings → Pages
-3. Branch: main, Folder: / (root)
-4. Live at `https://yourusername.github.io/MindCalc`
-
-**Note**: PWA install requires HTTPS. GitHub Pages provides this.
+2. Settings → Pages → main branch
+3. Live at `https://yourusername.github.io/MindCalc`
 
 ## License
 

@@ -63,7 +63,6 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
-    direction: rtl;
     transition: background 0.3s, color 0.3s;
 }
 
@@ -195,12 +194,13 @@ body {
     min-height: 3rem;
 }
 
-/* Buttons Grid */
+/* Buttons Grid - FIXED LAYOUT (same for both languages) */
 .calc-buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
     margin-bottom: 1rem;
+    direction: ltr; /* Always LTR for consistent layout */
 }
 
 .btn {
@@ -268,15 +268,22 @@ body {
     background: var(--accent-hover);
 }
 
-/* Explain Button */
+/* Explain Actions */
+.explain-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
 .explain-btn {
-    width: 100%;
+    flex: 1;
+    min-width: 140px;
     height: 52px;
     border-radius: var(--radius-sm);
     border: 2px dashed var(--accent);
     background: var(--accent-light);
     color: var(--accent);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -284,7 +291,6 @@ body {
     justify-content: center;
     gap: 0.5rem;
     transition: var(--transition);
-    margin-top: 0.5rem;
 }
 
 .explain-btn:hover:not(:disabled) {
@@ -296,6 +302,38 @@ body {
 }
 
 .explain-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+.solve-yourself-btn {
+    flex: 1;
+    min-width: 140px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    border: 2px dashed var(--success);
+    background: var(--success-light);
+    color: var(--success);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+}
+
+.solve-yourself-btn:hover:not(:disabled) {
+    background: var(--success);
+    color: white;
+    border-style: solid;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(28,200,138,0.3);
+}
+
+.solve-yourself-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     border-style: dashed;
@@ -438,6 +476,59 @@ body {
     text-align: center;
     line-height: 24px;
     margin-left: 0.5rem;
+}
+
+/* ===== Navigation Cards ===== */
+.nav-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.nav-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition);
+    text-align: left;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+}
+
+.nav-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.nav-card-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.nav-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: start;
+}
+
+.nav-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.nav-card-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
 }
 
 /* ===== Practice View ===== */
@@ -651,6 +742,154 @@ body {
 .practice-explanation .step-item {
     margin-bottom: 0.35rem;
     font-size: 0.9rem;
+}
+
+/* ===== Solve Yourself Modal ===== */
+.solve-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.solve-modal.active {
+    display: flex;
+}
+
+.solve-modal-content {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 0;
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    box-shadow: var(--shadow-lg);
+    animation: modalIn 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.solve-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.solve-modal-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.solve-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.solve-modal-close:hover {
+    background: var(--bg-secondary);
+    color: var(--danger);
+}
+
+.solve-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.solve-step {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.solve-step-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+}
+
+.solve-step-input {
+    width: 100%;
+    max-width: 150px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-family: var(--font-mono);
+    text-align: center;
+    padding: 0 0.5rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.solve-step-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(78,115,223,0.15);
+}
+
+.solve-step-input.correct {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+
+.solve-step-input.wrong {
+    border-color: var(--danger);
+    background: var(--danger-light);
+}
+
+.solve-step-feedback {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+.solve-step-feedback.correct {
+    color: var(--success);
+}
+
+.solve-step-feedback.wrong {
+    color: var(--danger);
+}
+
+.solve-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.solve-progress {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
 }
 
 /* ===== History Modal ===== */
@@ -1205,6 +1444,18 @@ body {
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
     }
+
+    .nav-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .explain-actions {
+        flex-direction: column;
+    }
+
+    .explain-btn, .solve-yourself-btn {
+        min-width: 100%;
+    }
 }
 
 @media (max-width: 400px) {
@@ -1241,7 +1492,8 @@ body {
 .demo-chip:focus-visible,
 .level-btn:focus-visible,
 .install-btn:focus-visible,
-.back-btn:focus-visible {
+.back-btn:focus-visible,
+.nav-card:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -1280,6 +1532,7 @@ html[dir="rtl"] .step-number { margin-left: 0.5rem; margin-right: 0; }
 html[dir="rtl"] .history-delete { margin-right: 0.5rem; margin-left: 0; }
 html[dir="rtl"] .back-btn { left: 1.5rem; right: auto; }
 html[dir="rtl"] .ios-install-body ol { padding-right: 1.5rem; padding-left: 0; }
+html[dir="rtl"] .nav-card-text { text-align: right; }
 
 html[dir="ltr"] body { direction: ltr; }
 html[dir="ltr"] .display, html[dir="ltr"] .expression, html[dir="ltr"] .result { text-align: left; }
@@ -1289,3 +1542,4 @@ html[dir="ltr"] .step-number { margin-right: 0.5rem; margin-left: 0; }
 html[dir="ltr"] .history-delete { margin-left: 0.5rem; margin-right: 0; }
 html[dir="ltr"] .back-btn { right: 1.5rem; left: auto; }
 html[dir="ltr"] .ios-install-body ol { padding-left: 1.5rem; padding-right: 0; }
+html[dir="ltr"] .nav-card-text { text-align: left; }
