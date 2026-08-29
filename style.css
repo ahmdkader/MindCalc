@@ -63,6 +63,7 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
+    direction: rtl;
     transition: background 0.3s, color 0.3s;
 }
 
@@ -194,13 +195,12 @@ body {
     min-height: 3rem;
 }
 
-/* Buttons Grid - FIXED LAYOUT (same for both languages) */
+/* Buttons Grid */
 .calc-buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
     margin-bottom: 1rem;
-    direction: ltr; /* Always LTR for consistent layout */
 }
 
 .btn {
@@ -268,22 +268,15 @@ body {
     background: var(--accent-hover);
 }
 
-/* Explain Actions */
-.explain-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
-
+/* Explain Button */
 .explain-btn {
-    flex: 1;
-    min-width: 140px;
+    width: 100%;
     height: 52px;
     border-radius: var(--radius-sm);
     border: 2px dashed var(--accent);
     background: var(--accent-light);
     color: var(--accent);
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -291,6 +284,7 @@ body {
     justify-content: center;
     gap: 0.5rem;
     transition: var(--transition);
+    margin-top: 0.5rem;
 }
 
 .explain-btn:hover:not(:disabled) {
@@ -302,38 +296,6 @@ body {
 }
 
 .explain-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    border-style: dashed;
-}
-
-.solve-yourself-btn {
-    flex: 1;
-    min-width: 140px;
-    height: 52px;
-    border-radius: var(--radius-sm);
-    border: 2px dashed var(--success);
-    background: var(--success-light);
-    color: var(--success);
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: var(--transition);
-}
-
-.solve-yourself-btn:hover:not(:disabled) {
-    background: var(--success);
-    color: white;
-    border-style: solid;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(28,200,138,0.3);
-}
-
-.solve-yourself-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     border-style: dashed;
@@ -476,59 +438,6 @@ body {
     text-align: center;
     line-height: 24px;
     margin-left: 0.5rem;
-}
-
-/* ===== Navigation Cards ===== */
-.nav-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.nav-card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: var(--transition);
-    text-align: left;
-    border: none;
-    font-family: inherit;
-    color: inherit;
-}
-
-.nav-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent);
-}
-
-.nav-card-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.nav-card-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: start;
-}
-
-.nav-card-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.nav-card-desc {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
 }
 
 /* ===== Practice View ===== */
@@ -742,154 +651,6 @@ body {
 .practice-explanation .step-item {
     margin-bottom: 0.35rem;
     font-size: 0.9rem;
-}
-
-/* ===== Solve Yourself Modal ===== */
-.solve-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
-
-.solve-modal.active {
-    display: flex;
-}
-
-.solve-modal-content {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 0;
-    max-width: 500px;
-    width: 100%;
-    max-height: 85vh;
-    box-shadow: var(--shadow-lg);
-    animation: modalIn 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-}
-
-.solve-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-}
-
-.solve-modal-header h3 {
-    font-size: 1.1rem;
-    color: var(--text-primary);
-}
-
-.solve-modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.solve-modal-close:hover {
-    background: var(--bg-secondary);
-    color: var(--danger);
-}
-
-.solve-modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.solve-step {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-}
-
-.solve-step-question {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.75rem;
-    font-family: var(--font-mono);
-}
-
-.solve-step-input {
-    width: 100%;
-    max-width: 150px;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    border: 2px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    font-family: var(--font-mono);
-    text-align: center;
-    padding: 0 0.5rem;
-    outline: none;
-    transition: var(--transition);
-}
-
-.solve-step-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(78,115,223,0.15);
-}
-
-.solve-step-input.correct {
-    border-color: var(--success);
-    background: var(--success-light);
-}
-
-.solve-step-input.wrong {
-    border-color: var(--danger);
-    background: var(--danger-light);
-}
-
-.solve-step-feedback {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    min-height: 20px;
-}
-
-.solve-step-feedback.correct {
-    color: var(--success);
-}
-
-.solve-step-feedback.wrong {
-    color: var(--danger);
-}
-
-.solve-modal-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.solve-progress {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
 }
 
 /* ===== History Modal ===== */
@@ -1444,18 +1205,6 @@ body {
         padding: 0.4rem 0.8rem;
         font-size: 0.8rem;
     }
-
-    .nav-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .explain-actions {
-        flex-direction: column;
-    }
-
-    .explain-btn, .solve-yourself-btn {
-        min-width: 100%;
-    }
 }
 
 @media (max-width: 400px) {
@@ -1492,8 +1241,7 @@ body {
 .demo-chip:focus-visible,
 .level-btn:focus-visible,
 .install-btn:focus-visible,
-.back-btn:focus-visible,
-.nav-card:focus-visible {
+.back-btn:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -1532,7 +1280,6 @@ html[dir="rtl"] .step-number { margin-left: 0.5rem; margin-right: 0; }
 html[dir="rtl"] .history-delete { margin-right: 0.5rem; margin-left: 0; }
 html[dir="rtl"] .back-btn { left: 1.5rem; right: auto; }
 html[dir="rtl"] .ios-install-body ol { padding-right: 1.5rem; padding-left: 0; }
-html[dir="rtl"] .nav-card-text { text-align: right; }
 
 html[dir="ltr"] body { direction: ltr; }
 html[dir="ltr"] .display, html[dir="ltr"] .expression, html[dir="ltr"] .result { text-align: left; }
@@ -1542,254 +1289,3 @@ html[dir="ltr"] .step-number { margin-right: 0.5rem; margin-left: 0; }
 html[dir="ltr"] .history-delete { margin-left: 0.5rem; margin-right: 0; }
 html[dir="ltr"] .back-btn { right: 1.5rem; left: auto; }
 html[dir="ltr"] .ios-install-body ol { padding-left: 1.5rem; padding-right: 0; }
-html[dir="ltr"] .nav-card-text { text-align: left; }
-
-
-/* ===== Menu Dropdown ===== */
-.menu-wrapper {
-    position: relative;
-}
-
-.menu-btn {
-    font-size: 1.3rem;
-}
-
-.menu-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    min-width: 180px;
-    z-index: 150;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    animation: menuSlideDown 0.2s ease-out;
-}
-
-.menu-dropdown.active {
-    display: flex;
-}
-
-@keyframes menuSlideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem 1.25rem;
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: start;
-    font-family: inherit;
-    width: 100%;
-}
-
-.menu-item:hover {
-    background: var(--accent-light);
-    color: var(--accent);
-}
-
-.menu-item span:first-child {
-    font-size: 1.2rem;
-}
-
-/* ===== Solve Modal - One Step at a Time ===== */
-.solve-step.active-step {
-    animation: stepFadeIn 0.3s ease-out;
-}
-
-@keyframes stepFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.solve-step-indicator {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    background: var(--accent-light);
-    border-radius: var(--radius-sm);
-}
-
-/* Fix for dark mode - ensure all elements update */
-[data-theme="dark"] .menu-dropdown {
-    background: var(--bg-card);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .menu-item:hover {
-    background: var(--accent-light);
-}
-
-/* Ensure text colors update in dark mode */
-[data-theme="dark"] .expression {
-    color: var(--text-secondary);
-}
-
-[data-theme="dark"] .result {
-    color: var(--text-primary);
-}
-
-[data-theme="dark"] .question-text {
-    color: var(--text-primary);
-}
-
-[data-theme="dark"] .practice-input {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .practice-input:focus {
-    border-color: var(--accent);
-}
-
-[data-theme="dark"] .solve-step-input {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .solve-step-input:focus {
-    border-color: var(--accent);
-}
-
-[data-theme="dark"] .history-item {
-    background: var(--bg-secondary);
-}
-
-[data-theme="dark"] .history-item:hover {
-    background: var(--accent-light);
-}
-
-[data-theme="dark"] .level-btn {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .level-btn:hover,
-[data-theme="dark"] .level-btn.active {
-    background: var(--accent);
-    color: white;
-}
-
-[data-theme="dark"] .demo-chip {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .demo-chip:hover {
-    background: var(--accent);
-    color: white;
-}
-
-[data-theme="dark"] .btn {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .btn-special {
-    background: var(--bg-primary);
-    color: var(--text-secondary);
-}
-
-[data-theme="dark"] .btn-operator {
-    background: var(--accent-light);
-    color: var(--accent);
-}
-
-[data-theme="dark"] .btn-operator:hover {
-    background: var(--accent);
-    color: white;
-}
-
-[data-theme="dark"] .btn-equals {
-    background: var(--accent);
-    color: white;
-}
-
-[data-theme="dark"] .display {
-    background: var(--bg-secondary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .calculator-card,
-[data-theme="dark"] .practice-card,
-[data-theme="dark"] .explanation-card,
-[data-theme="dark"] .demo-section,
-[data-theme="dark"] .nav-card,
-[data-theme="dark"] .modal-content,
-[data-theme="dark"] .history-modal-content,
-[data-theme="dark"] .solve-modal-content,
-[data-theme="dark"] .ios-install-content {
-    background: var(--bg-card);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .steps-area,
-[data-theme="dark"] .question-area,
-[data-theme="dark"] .practice-explanation {
-    background: var(--bg-secondary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .step-item {
-    background: var(--bg-card);
-}
-
-[data-theme="dark"] .back-btn {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-[data-theme="dark"] .back-btn:hover {
-    background: var(--accent-light);
-}
-
-[data-theme="dark"] .install-prompt {
-    background: var(--accent);
-}
-
-[data-theme="dark"] select {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border);
-}
-
-/* RTL fixes for menu */
-html[dir="rtl"] .menu-dropdown {
-    right: 0;
-    left: auto;
-}
-
-html[dir="ltr"] .menu-dropdown {
-    right: auto;
-    left: 0;
-}
-
-html[dir="rtl"] .menu-item {
-    text-align: right;
-}
-
-html[dir="ltr"] .menu-item {
-    text-align: left;
-}

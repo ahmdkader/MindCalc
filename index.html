@@ -91,23 +91,6 @@
             </div>
         </div>
 
-        <!-- Solve Yourself Modal -->
-        <div class="solve-modal" id="solve-modal">
-            <div class="solve-modal-content">
-                <div class="solve-modal-header">
-                    <h3 data-i18n="solve_yourself_title">✏️ حلها بنفسك</h3>
-                    <button class="solve-modal-close" id="solve-modal-close">×</button>
-                </div>
-                <div class="solve-modal-body" id="solve-modal-body">
-                    <!-- Dynamic content - one step at a time -->
-                </div>
-                <div class="solve-modal-footer">
-                    <button id="solve-check" class="btn btn-primary" data-i18n="check_step" disabled>تحقق</button>
-                    <button id="solve-next-step" class="btn btn-secondary" data-i18n="next_step" disabled>الخطوة التالية</button>
-                </div>
-            </div>
-        </div>
-
         <header class="header">
             <div class="header-content">
                 <div class="logo">
@@ -118,31 +101,20 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <!-- Menu Button -->
-                    <div class="menu-wrapper">
-                        <button id="menu-btn" class="icon-btn menu-btn" aria-label="Menu">
-                            <span>☰</span>
-                        </button>
-                        <div class="menu-dropdown" id="menu-dropdown">
-                            <button class="menu-item" id="menu-settings">
-                                <span>⚙️</span>
-                                <span id="menu-settings-text" data-i18n="menu_settings">⚙️ الإعدادات</span>
-                            </button>
-                            <button class="menu-item" id="menu-history">
-                                <span>📜</span>
-                                <span id="menu-history-text" data-i18n="menu_history">📜 السجل</span>
-                            </button>
-                            <button class="menu-item" id="menu-practice">
-                                <span>🎯</span>
-                                <span id="menu-practice-text" data-i18n="menu_practice">🎯 التدريب</span>
-                            </button>
-                        </div>
-                    </div>
+                    <button id="practice-toggle" class="icon-btn" aria-label="Practice">
+                        <span>🎯</span>
+                    </button>
+                    <button id="history-toggle" class="icon-btn" aria-label="History">
+                        <span>📜</span>
+                    </button>
                     <button id="lang-toggle" class="icon-btn lang-btn" aria-label="Change language">
                         <span id="lang-icon">EN</span>
                     </button>
                     <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
                         <span class="theme-icon">🌙</span>
+                    </button>
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                        <span>⚙️</span>
                     </button>
                 </div>
             </div>
@@ -178,14 +150,9 @@
                         <button class="btn" data-action="negate">±</button>
                         <button class="btn btn-equals" data-action="equals">=</button>
                     </div>
-                    <div class="explain-actions">
-                        <button id="explain-btn" class="explain-btn" disabled>
-                            <span>🧠</span> <span data-i18n="explain_btn">اشرح لي الطريقة</span>
-                        </button>
-                        <button id="solve-yourself-btn" class="solve-yourself-btn" disabled>
-                            <span>✏️</span> <span data-i18n="solve_yourself_btn">حلها بنفسك</span>
-                        </button>
-                    </div>
+                    <button id="explain-btn" class="explain-btn" disabled>
+                        <span>🧠</span> <span data-i18n="explain_btn">اشرح لي الطريقة</span>
+                    </button>
                 </div>
             </section>
             <section class="demo-section">
@@ -207,24 +174,6 @@
                     </div>
                     <div class="steps-area" id="steps-area"></div>
                 </div>
-            </section>
-
-            <!-- Navigation Cards (kept for backward compatibility, also accessible from menu) -->
-            <section class="nav-cards">
-                <button class="nav-card" id="history-nav-card">
-                    <span class="nav-card-icon">📜</span>
-                    <div class="nav-card-text">
-                        <span class="nav-card-title" data-i18n="history_nav_title">السجل</span>
-                        <span class="nav-card-desc" data-i18n="history_nav_desc">شوف عملياتك السابقة</span>
-                    </div>
-                </button>
-                <button class="nav-card" id="practice-nav-card">
-                    <span class="nav-card-icon">🎯</span>
-                    <div class="nav-card-text">
-                        <span class="nav-card-title" data-i18n="practice_nav_title">درب نفسك</span>
-                        <span class="nav-card-desc" data-i18n="practice_nav_desc">تمرن وحسّن مهاراتك</span>
-                    </div>
-                </button>
             </section>
         </main>
 
